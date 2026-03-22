@@ -1,11 +1,15 @@
 import random
 import typing
-import heapq
+from collections import deque
+
+# ==========================================
+# Battlesnake API Endpoints
+# ==========================================
 
 def info() -> typing.Dict:
     return {
         "apiversion": "1",
-        "author": "MGAIA_Heuristic_Refined",
+        "author": "MGAIA_multi_bfs_heuristics",
         "color": "#FFD700",
         "head": "default",
         "tail": "default",
@@ -17,179 +21,246 @@ def start(game_state: typing.Dict):
 def end(game_state: typing.Dict):
     print(f"GAME OVER: {game_state['game']['id']}\n")
 
-# --- Helper Algorithms ---
-
-def manhattan_dist(p1, p2):
-    return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
-
-def get_neighbors(node, width, height):
-    x, y = node
+def get_neighbors(x, y, width, height):
     return [(nx, ny) for nx, ny in [(x, y+1), (x, y-1), (x-1, y), (x+1, y)] 
             if 0 <= nx < width and 0 <= ny < height]
 
-def flood_fill(start_node, obstacles, width, height, max_depth):
+# ==========================================
+# MCTS Evaluation Module (For Phase 2/3)
+# ==========================================
+
+def evaluate_state(state) -> typing.Dict[str, float]:
     """
-    Calculates how much open space is accessible from a given square.
-    Returns the number of open squares found, up to max_depth.
+    Evaluates the fast MCTS GameState using the Voronoi logic.
+    Returns a dictionary of normalized scores [0.0, 1.0] for MCTS Progressive Bias.
     """
-    visited = set()
-    queue = [start_node]
-    count = 0
-    
-    while queue and count < max_depth:
-        current = queue.pop(0)
-        if current not in visited and current not in obstacles:
-            visited.add(current)
-            count += 1
-            for neighbor in get_neighbors(current, width, height):
-                if neighbor not in visited and neighbor not in obstacles:
-                    queue.append(neighbor)
-    return count
+    scores = {}
+    board_width = state.board_width
+    board_height = state.board_height
+    turn = state.turn
+    hazards_set = state.hazards
+    food_set = state.food
 
-def a_star(start, goal, obstacles, hazards, width, height):
-    open_set = []
-    heapq.heappush(open_set, (0, start))
-    came_from = {}
-    g_score = {start: 0}
-    f_score = {start: manhattan_dist(start, goal)}
+    # Dynamic Hazard Math
+    hazard_stack = 0
+    if turn >= 26:
+        hazard_stack = min(4, (turn - 1) // 25)
+    hazard_damage = 14 * hazard_stack
+    total_hazard_cost = 1 + hazard_damage
 
-    while open_set:
-        _, current = heapq.heappop(open_set)
-        if current == goal:
-            curr = current
-            length = 0
-            while curr in came_from:
-                length += 1
-                curr = came_from[curr]
-            return length
+    # Pre-calculate obstacle lifetimes globally for this state
+    obstacle_lifetimes = {}
+    for s_id, snake in state.snakes.items():
+        if not snake.is_alive: continue
+        is_fed = snake.health == 100
+        for i, pt in enumerate(reversed(snake.body)):
+            lifetime = i + (1 if is_fed else 0)
+            obstacle_lifetimes[pt] = max(obstacle_lifetimes.get(pt, 0), lifetime)
 
-        for neighbor in get_neighbors(current, width, height):
-            if neighbor in obstacles:
-                continue
-            step_cost = 1
-            if neighbor in hazards:
-                step_cost += 15 
+    # Evaluate the board from the perspective of EVERY alive snake
+    for eval_id, me in state.snakes.items():
+        if not me.is_alive:
+            scores[eval_id] = 0.0
+            continue
+            
+        my_head = me.head
+        my_health = me.health
+        my_length = me.length
+        
+        risky_head_zones = set()
+        kill_head_zones = set()
 
-            tentative_g_score = g_score[current] + step_cost
+        for s_id, snake in state.snakes.items():
+            if not snake.is_alive or s_id == eval_id: continue
+            opp_head = snake.head
+            for nx, ny in get_neighbors(opp_head[0], opp_head[1], board_width, board_height):
+                if snake.length >= my_length:
+                    risky_head_zones.add((nx, ny))
+                else:
+                    kill_head_zones.add((nx, ny))
 
-            if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
-                came_from[neighbor] = current
-                g_score[neighbor] = tentative_g_score
-                f_score[neighbor] = tentative_g_score + manhattan_dist(neighbor, goal)
-                heapq.heappush(open_set, (f_score[neighbor], neighbor))
+        # BFS Setup
+        queue = deque()
+        visited = {}
+        
+        # Add enemies to queue first (distance 0)
+        for s_id, snake in state.snakes.items():
+            if not snake.is_alive or s_id == eval_id: continue
+            queue.append((snake.head[0], snake.head[1], s_id, 0))
+            visited[snake.head] = s_id
 
-    return float('inf')
+        # Add the evaluating snake second (distance 1)
+        queue.append((my_head[0], my_head[1], eval_id, 1))
+        if my_head not in visited: 
+            visited[my_head] = eval_id
 
-# --- Core Move Logic ---
+        territory_count = 0
+        closest_food_dist = 1 if my_head in food_set else float('inf')
+
+        # Run Voronoi Expansion
+        while queue:
+            cx, cy, owner_id, dist = queue.popleft()
+            for nx, ny in get_neighbors(cx, cy, board_width, board_height):
+                neighbor = (nx, ny)
+                
+                # Time-Aware Obstacle clear time
+                if neighbor in obstacle_lifetimes and dist <= obstacle_lifetimes[neighbor]:
+                    continue
+                    
+                # Hazard-blindness prevention
+                if neighbor in hazards_set and my_health <= total_hazard_cost * 3:
+                    continue
+                    
+                if neighbor not in visited:
+                    visited[neighbor] = owner_id
+                    queue.append((nx, ny, owner_id, dist + 1))
+                    if owner_id == eval_id:
+                        territory_count += 1
+                        if neighbor in food_set and closest_food_dist == float('inf'):
+                            closest_food_dist = dist + 1
+
+        # Calculate final raw score
+        raw_score = (territory_count * 3)
+        if closest_food_dist != float('inf'):
+            raw_score += ((200 if my_health < 40 else 20) / closest_food_dist)
+        if territory_count < my_length:
+            raw_score -= (4000 - territory_count)
+        if my_head in risky_head_zones:
+            raw_score -= 5000
+            
+        # Normalize for UCB equation (assuming typical bounds of -5000 to +1500)
+        scores[eval_id] = max(0.0, min(1.0, (raw_score + 5000) / 6500.0))
+
+    return scores
+
+# ==========================================
+# Standalone Agent Move Logic (For Phase 1)
+# ==========================================
 
 def move(game_state: typing.Dict) -> typing.Dict:
+    """
+    Parses standard JSON to calculate the best immediate move.
+    """
     board_width = game_state['board']['width']
     board_height = game_state['board']['height']
+    turn = game_state['turn']
     
-    my_head = game_state['you']['head']
-    my_id = game_state['you']['id']
-    my_health = game_state['you']['health']
-    my_length = game_state['you']['length']
+    me = game_state['you']
+    my_id = me['id']
+    my_head = (me['head']['x'], me['head']['y'])
+    my_health = me['health']
+    my_length = me['length']
     
-    head_tup = (my_head['x'], my_head['y'])
+    snakes = game_state['board']['snakes']
     hazards_set = {(h['x'], h['y']) for h in game_state['board']['hazards']}
-    food_tups = [(f['x'], f['y']) for f in game_state['board']['food']]
+    food_set = {(f['x'], f['y']) for f in game_state['board']['food']}
 
-    # Build Obstacles intelligently (Tail Chasing Rule)
-    obs_set = set()
+    hazard_stack = 0
+    if turn >= 26:
+        hazard_stack = min(4, (turn - 1) // 25)
+    hazard_damage = 14 * hazard_stack
+    total_hazard_cost = 1 + hazard_damage
+
+    obstacle_lifetimes = {}
     risky_head_zones = set()
     kill_head_zones = set()
-    
-    for snake in game_state['board']['snakes']:
+
+    for snake in snakes:
+        s_id = snake['id']
         body = [(s['x'], s['y']) for s in snake['body']]
+        is_fed = snake['health'] == 100
         
-        # If health is 100, they just ate. Tail stays.
-        # Otherwise, the tail will move, so we don't count the very last segment as an obstacle.
-        if snake['health'] < 100 and len(body) > 1:
-            current_obstacles = body[:-1] 
-        else:
-            current_obstacles = body
-            
-        for segment in current_obstacles:
-            obs_set.add(segment)
+        for i, segment in enumerate(reversed(body)):
+            lifetime = i + (1 if is_fed else 0)
+            obstacle_lifetimes[segment] = max(obstacle_lifetimes.get(segment, 0), lifetime)
 
-        # Head-to-Head calculations
-        if snake['id'] != my_id:
+        if s_id != my_id:
             opp_head = (snake['head']['x'], snake['head']['y'])
-            opp_length = snake['length']
-            for neighbor in get_neighbors(opp_head, board_width, board_height):
-                if opp_length >= my_length:
-                    risky_head_zones.add(neighbor)
+            for nx, ny in get_neighbors(opp_head[0], opp_head[1], board_width, board_height):
+                if snake['length'] >= my_length:
+                    risky_head_zones.add((nx, ny))
                 else:
-                    kill_head_zones.add(neighbor)
+                    kill_head_zones.add((nx, ny))
 
-    move_scores = {"up": 0, "down": 0, "left": 0, "right": 0}
-    dirs = {"up": (0, 1), "down": (0, -1), "left": (-1, 0), "right": (1, 0)}
+    def evaluate_state(target_sq):
+        if target_sq[0] < 0 or target_sq[0] >= board_width or target_sq[1] < 0 or target_sq[1] >= board_height:
+            return -10000
+        if target_sq in obstacle_lifetimes and obstacle_lifetimes[target_sq] >= 1: 
+            return -10000
 
-    for direction, (dx, dy) in dirs.items():
-        target = (head_tup[0] + dx, head_tup[1] + dy)
+        score = 0
+        if target_sq in hazards_set:
+            if my_health <= total_hazard_cost:
+                return -10000
+            score -= (50 + hazard_damage * 2) 
+
+        if target_sq in risky_head_zones:
+            score -= 5000
+        elif target_sq in kill_head_zones:
+            score += 150
+
+        queue = deque()
+        visited = {}
         
-        # 1. Bounds & Static Obstacle Check
-        if target[0] < 0 or target[0] >= board_width or target[1] < 0 or target[1] >= board_height:
-            move_scores[direction] -= 10000 
-            continue
+        for snake in snakes:
+            if snake['id'] != my_id:
+                o_head = (snake['head']['x'], snake['head']['y'])
+                queue.append((o_head[0], o_head[1], snake['id'], 0))
+                visited[o_head] = snake['id']
+
+        queue.append((target_sq[0], target_sq[1], my_id, 1))
+        if target_sq not in visited:
+            visited[target_sq] = my_id
+
+        territory_count = 0
+        closest_food_dist = 1 if target_sq in food_set else float('inf')
+
+        while queue:
+            cx, cy, owner_id, dist = queue.popleft()
             
-        if target in obs_set:
-            move_scores[direction] -= 10000 
-            continue
+            for nx, ny in get_neighbors(cx, cy, board_width, board_height):
+                neighbor = (nx, ny)
+                if neighbor in obstacle_lifetimes and dist <= obstacle_lifetimes[neighbor]:
+                    continue 
+                if neighbor in hazards_set and my_health <= total_hazard_cost * 3:
+                    continue 
 
-        # 2. Dynamic Space Check (Flood Fill)
-        # Check if this move leads into a dead end smaller than our own body
-        open_space = flood_fill(target, obs_set, board_width, board_height, my_length)
-        if open_space < my_length:
-            # Trapped! Heavily penalize based on how small the space is
-            move_scores[direction] -= (4000 - open_space)
+                if neighbor not in visited:
+                    visited[neighbor] = owner_id
+                    queue.append((nx, ny, owner_id, dist + 1))
+                    
+                    if owner_id == my_id:
+                        territory_count += 1
+                        if neighbor in food_set and closest_food_dist == float('inf'):
+                            closest_food_dist = dist + 1
 
-        # 3. Head-to-Head Check
-        if target in risky_head_zones:
-            move_scores[direction] -= 5000 
-        elif target in kill_head_zones:
-            move_scores[direction] += 150 
+        score += (territory_count * 3)
+        if closest_food_dist != float('inf'):
+            score += ((200 if my_health < 40 else 20) / closest_food_dist)
+        if territory_count < my_length:
+            score -= (4000 - territory_count)
 
-        # 4. Hazards Evaluation (Lethality check)
-        if target in hazards_set:
-            # Assignment specific: hazards do 14 damage + 1 per turn. 
-            # If we step in at 15 health or lower, we die.
-            if my_health <= 15:
-                move_scores[direction] -= 10000
-            else:
-                move_scores[direction] -= 50 
+        return score
 
-        # 5. Food Evaluation
-        if food_tups:
-            min_path_len = float('inf')
-            for food in food_tups:
-                path_len = a_star(target, food, obs_set, hazards_set, board_width, board_height)
-                if path_len < min_path_len:
-                    min_path_len = path_len
-            
-            # Exponentially increase food priority as health gets lower
-            if my_health < 20:
-                food_weight = 500
-            elif my_health < 50:
-                food_weight = 100
-            else:
-                food_weight = 10
-            
-            if min_path_len == 0:
-                move_scores[direction] += food_weight 
-            elif min_path_len != float('inf'):
-                move_scores[direction] += (food_weight / min_path_len)
+    possible_moves = {"up": (0, 1), "down": (0, -1), "left": (-1, 0), "right": (1, 0)}
+    move_scores = {}
 
-    # Break ties
-    for direction in move_scores:
-        if move_scores[direction] > -5000:
-            move_scores[direction] += random.uniform(0, 0.1)
+    for move_name, (dx, dy) in possible_moves.items():
+        target = (my_head[0] + dx, my_head[1] + dy)
+        move_scores[move_name] = evaluate_state(target)
+
+    for m in move_scores:
+        if move_scores[m] > -5000:
+            move_scores[m] += random.uniform(0, 0.1)
 
     best_move = max(move_scores, key=move_scores.get)
-    print(f"MOVE {game_state['turn']}: {best_move} (Scores: {move_scores})")
+    print(f"Heuristic Turn {turn} | MOVE: {best_move} | Health: {my_health} | Scores: {move_scores}")
     
     return {"move": best_move}
+
+# ==========================================
+# Server Execution
+# ==========================================
 
 if __name__ == "__main__":
     from server import run_server
