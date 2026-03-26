@@ -5,3 +5,4 @@ __pycache__/
 /logs
 archive/
 game.json
+*.pkl
