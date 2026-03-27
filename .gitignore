@@ -6,3 +6,5 @@ __pycache__/
 archive/
 game.json
 RL_Agent/*.pkl
+RL_Agent/runs/
+.gitignore

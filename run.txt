@@ -1,0 +1,7 @@
+screen -r battle-snake-training
+htop
+nvidia-smi
+ctrl+a d
+ctrl+shift+p
+tensorboard --logdir=runs --port=6006
+source env/bin/activate

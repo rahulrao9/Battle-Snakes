@@ -1,51 +1,50 @@
 """
-train_local.py — Battlesnake AlphaZero Local Training
+train.py — Battlesnake AlphaZero Local Training
 ======================================================
 Usage:
-    python train_local.py                        # fresh run
-    python train_local.py --ckpt my_net.pt       # custom checkpoint path
-    python train_local.py --iters 200 --ms 80    # override config
-    python train_local.py --eval-only            # skip training, just evaluate
+    python train.py                          # fresh run
+    python train.py --ckpt my_net.pt         # custom checkpoint path
+    python train.py --iters 200 --ms 80      # override config
+    python train.py --eval-only              # skip training, just evaluate
 """
 
 import argparse
 import os
 import types
+import warnings
 
 import numpy as np
 import torch
 import torch.nn as nn
+from torch.utils.tensorboard import SummaryWriter
 
-# ── Parse args ────────────────────────────────────────────────────────────────
+warnings.filterwarnings("ignore")
+torch.set_float32_matmul_precision("high")
+
+# ── Args ──────────────────────────────────────────────────────────────────────
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--ckpt",       default="battlesnake_net.pt")
-parser.add_argument("--buf",        default="replay_buffer.pkl")
-parser.add_argument("--iters",      type=int,   default=300)
-parser.add_argument("--games",      type=int,   default=30)
-parser.add_argument("--steps",      type=int,   default=80)
-parser.add_argument("--batch",      type=int,   default=512)
-parser.add_argument("--ms",         type=int,   default=40)
-parser.add_argument("--filters",    type=int,   default=64)
-parser.add_argument("--res-blocks", type=int,   default=8)
-parser.add_argument("--pretrain-games", type=int, default=300)
-parser.add_argument("--pretrain-epochs", type=int, default=5)
-parser.add_argument("--eval-only",  action="store_true")
-parser.add_argument("--eval-games", type=int,   default=10)
-parser.add_argument("--eval-ms",    type=int,   default=200)
+parser.add_argument("--ckpt",            default="battlesnake_net.pt")
+parser.add_argument("--buf",             default="replay_buffer.pkl")
+parser.add_argument("--iters",           type=int,   default=150)
+parser.add_argument("--games",           type=int,   default=60)
+parser.add_argument("--steps",           type=int,   default=300)
+parser.add_argument("--batch",           type=int,   default=512)
+parser.add_argument("--ms",              type=int,   default=80)
+parser.add_argument("--filters",         type=int,   default=128)
+parser.add_argument("--res-blocks",      type=int,   default=12)
+parser.add_argument("--pretrain-games",  type=int,   default=300)
+parser.add_argument("--pretrain-epochs", type=int,   default=10)
+parser.add_argument("--eval-only",       action="store_true")
+parser.add_argument("--eval-games",      type=int,   default=10)
+parser.add_argument("--eval-ms",         type=int,   default=200)
+parser.add_argument("--lr",              type=float, default=5e-4)
+parser.add_argument("--resume-lr",       type=float, default=1e-4)
 args = parser.parse_args()
 
-# ── Device ────────────────────────────────────────────────────────────────────
+# ── Config ────────────────────────────────────────────────────────────────────
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-if torch.cuda.is_available():
-    print(f"GPU : {torch.cuda.get_device_name(0)}  "
-          f"({torch.cuda.get_device_properties(0).total_memory/1e9:.1f} GB)")
-else:
-    print("No GPU — running on CPU (slower)")
-print(f"Device: {DEVICE}\n")
-
-# ── Config ────────────────────────────────────────────────────────────────────
 
 cfg = types.SimpleNamespace(
     ckpt       = args.ckpt,
@@ -60,41 +59,9 @@ cfg = types.SimpleNamespace(
     filters    = args.filters,
     res_blocks = args.res_blocks,
     device     = DEVICE,
+    lr         = args.lr,
+    resume_lr  = args.resume_lr,
 )
-
-iter_time_est = cfg.games * 4 * 100 * cfg.ms / 1000
-print(f"Config: {cfg.iters} iters | {cfg.games} games | {cfg.ms}ms MCTS | batch {cfg.batch}")
-print(f"Estimated ~{iter_time_est:.0f}s/iter self-play | "
-      f"~{cfg.steps} gradient steps/iter")
-print(f"Network: {cfg.filters}f x {cfg.res_blocks} res blocks\n")
-
-# ── Imports (local files must be in same directory) ───────────────────────────
-
-from neural_net    import BattlesnakeNet
-from az_mcts       import AlphaZeroMCTS
-from forward_model import GameState, Snake, MOVES
-from state_encoder import encode_state, decode_policy_mask, MOVE_TO_IDX
-from self_play     import ReplayBuffer, make_start, run_game, train_batch, train
-
-# ── Build network ─────────────────────────────────────────────────────────────
-
-net = BattlesnakeNet(10, cfg.filters, cfg.res_blocks)
-print(f"Network parameters: {sum(p.numel() for p in net.parameters()):,}")
-net = net.to(DEVICE)
-
-# DataParallel if multiple GPUs available
-if torch.cuda.device_count() > 1:
-    print(f"Using {torch.cuda.device_count()} GPUs with DataParallel")
-    net = nn.DataParallel(net)
-
-# torch.compile for speed (Python 3.11+, PyTorch 2.0+)
-try:
-    net = torch.compile(net, mode="reduce-overhead")
-    print("torch.compile: enabled")
-except Exception as e:
-    print(f"torch.compile skipped: {e}")
-
-print()
 
 # ── Heuristic flood-fill for supervised pretraining ───────────────────────────
 
@@ -103,6 +70,7 @@ def heuristic_move(state, sid):
     snake = state.snakes.get(sid)
     if not snake or not snake.is_alive:
         return "up"
+    from forward_model import MOVES
     W, H = state.board_width, state.board_height
     head, my_len, my_hp = snake.head, snake.length, snake.health
 
@@ -146,14 +114,16 @@ def heuristic_move(state, sid):
             scores[m] = -1e9
             continue
         sc = flood(nb) * 2.0
-        if nb in danger:      sc -= 500.0
-        elif nb in kill:      sc += 150.0
-        if nb in state.food:  sc += 200.0 if my_hp < 60 else 20.0
+        if nb in danger:     sc -= 500.0
+        elif nb in kill:     sc += 150.0
+        if nb in state.food: sc += 200.0 if my_hp < 60 else 20.0
         scores[m] = sc
     return max(scores, key=scores.get)
 
 
-def generate_supervised_data(n_games=300):
+def generate_supervised_data(n_games, cfg):
+    from state_encoder import decode_policy_mask, MOVE_TO_IDX
+    from self_play import make_start
     data = []
     for g in range(n_games):
         state = make_start(cfg.board, cfg.nsnakes)
@@ -163,6 +133,7 @@ def generate_supervised_data(n_games=300):
                 break
             joint = {}
             for sid in alive:
+                from state_encoder import encode_state
                 mv    = heuristic_move(state, sid)
                 legal = state.get_action_space(sid)
                 if mv not in legal:
@@ -179,15 +150,20 @@ def generate_supervised_data(n_games=300):
     return data
 
 
-def pretrain(net, n_games, epochs, batch, lr=1e-3):
+def pretrain(net, cfg):
+    n_games = args.pretrain_games
+    epochs  = args.pretrain_epochs
+    batch   = cfg.batch
+
     print(f"Supervised pretraining: {n_games} heuristic games, {epochs} epochs...")
-    data = generate_supervised_data(n_games)
+    data = generate_supervised_data(n_games, cfg)
     print(f"  {len(data):,} (state, move) pairs collected.")
 
-    raw = net.module if hasattr(net, "module") else net
-    raw = raw._orig_mod if hasattr(raw, "_orig_mod") else raw
+    from self_play import _get_raw_model
+    from state_encoder import MOVE_TO_IDX
+    raw = _get_raw_model(net)
 
-    opt   = torch.optim.Adam(raw.parameters(), lr=lr)
+    opt   = torch.optim.Adam(raw.parameters(), lr=1e-3)
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, epochs, eta_min=1e-5)
 
     for epoch in range(epochs):
@@ -209,26 +185,36 @@ def pretrain(net, n_games, epochs, batch, lr=1e-3):
             total_loss += float(loss.detach())
             n_batches  += 1
         sched.step()
-        print(f"  epoch {epoch+1}/{epochs} | "
-              f"loss={total_loss/max(n_batches,1):.4f} | "
-              f"lr={sched.get_last_lr()[0]:.2e}")
+        print(
+            f"  epoch {epoch+1}/{epochs} | "
+            f"loss={total_loss/max(n_batches,1):.4f} | "
+            f"lr={sched.get_last_lr()[0]:.2e}"
+        )
 
-    # Save pretrained checkpoint (iteration=0)
-    raw = net.module if hasattr(net, "module") else net
-    raw = raw._orig_mod if hasattr(raw, "_orig_mod") else raw
-    torch.save({
-        "model_state": raw.state_dict(),
-        "iteration":   0,
-        "config": {"in_channels": 10,
-                   "num_filters": cfg.filters,
-                   "num_res_blocks": cfg.res_blocks},
-    }, cfg.ckpt)
+    raw2 = _get_raw_model(net)
+    torch.save(
+        {
+            "model_state": raw2.state_dict(),
+            "iteration":   0,
+            "config": {
+                "in_channels":    10,
+                "num_filters":    cfg.filters,
+                "num_res_blocks": cfg.res_blocks,
+            },
+        },
+        cfg.ckpt,
+    )
     print(f"Pretrained checkpoint saved → {cfg.ckpt}\n")
     return net
 
+
 # ── Evaluation ────────────────────────────────────────────────────────────────
 
-def evaluate(n_games=10, ms=200):
+def evaluate(cfg, n_games=10, ms=200):
+    from neural_net import BattlesnakeNet
+    from az_mcts    import AlphaZeroMCTS
+    from self_play  import make_start
+
     print(f"\nEvaluating over {n_games} games (CPU, {ms}ms/move)...")
     eval_net = BattlesnakeNet(10, cfg.filters, cfg.res_blocks)
     if os.path.exists(cfg.ckpt):
@@ -256,9 +242,9 @@ def evaluate(n_games=10, ms=200):
             state = state.step(joint)
         alive_end = {sid for sid, s in state.snakes.items() if s.is_alive}
         if "s0" in alive_end and len(alive_end) == 1:
-            wins   += 1; result = "WIN"
+            wins  += 1; result = "WIN"
         elif not alive_end or "s0" in alive_end:
-            draws  += 1; result = "draw"
+            draws += 1; result = "draw"
         else:
             losses += 1; result = "loss"
         print(f"  Game {g+1}: {result}")
@@ -275,28 +261,74 @@ def evaluate(n_games=10, ms=200):
     else:
         print("  STATUS: below random — check training logs")
 
-# ── Main ──────────────────────────────────────────────────────────────────────
 
-if args.eval_only:
-    evaluate(args.eval_games, args.eval_ms)
-else:
-    # Pretraining — skip if checkpoint already exists
-    if os.path.exists(cfg.ckpt):
-        print(f"Checkpoint found at '{cfg.ckpt}' — loading weights, skipping pretraining.")
-        ck = torch.load(cfg.ckpt, map_location=DEVICE, weights_only=False)
-        raw = net.module if hasattr(net, "module") else net
-        raw = raw._orig_mod if hasattr(raw, "_orig_mod") else raw
-        raw.load_state_dict(ck["model_state"])
-        print(f"  Resumed from iteration {ck.get('iteration', '?')}/{cfg.iters}\n")
+# ── Entry point ───────────────────────────────────────────────────────────────
+# FIX: network is built ONLY inside this guard.
+# Building it at module level caused it to be constructed in every spawned
+# worker process that imports this file, wasting memory and triggering CUDA
+# re-initialisation errors.
+
+if __name__ == "__main__":
+    import torch.multiprocessing as mp
+    mp.set_start_method("spawn", force=True)
+
+    from neural_net import BattlesnakeNet
+    from self_play  import _get_raw_model, train
+
+    if DEVICE == "cuda":
+        print(
+            f"GPU : {torch.cuda.get_device_name(0)}  "
+            f"({torch.cuda.get_device_properties(0).total_memory/1e9:.1f} GB)"
+        )
     else:
-        net = pretrain(net,
-                       n_games = args.pretrain_games,
-                       epochs  = args.pretrain_epochs,
-                       batch   = cfg.batch)
+        print("No GPU — running on CPU (slower)")
+    print(f"Device: {DEVICE}\n")
 
-    # Self-play training loop
-    train(cfg, pretrained_net=net)
-    print("Training complete!")
+    iter_time_est = cfg.games * 4 * 100 * cfg.ms / 1000
+    print(f"Config: {cfg.iters} iters | {cfg.games} games | {cfg.ms}ms MCTS | batch {cfg.batch}")
+    print(
+        f"Estimated ~{iter_time_est:.0f}s/iter self-play | "
+        f"~{cfg.steps} gradient steps/iter"
+    )
+    print(f"Network: {cfg.filters}f x {cfg.res_blocks} res blocks\n")
 
-    # Evaluate after training
-    evaluate(args.eval_games, args.eval_ms)
+    net = BattlesnakeNet(10, cfg.filters, cfg.res_blocks)
+    print(f"Network parameters: {sum(p.numel() for p in net.parameters()):,}")
+    net = net.to(DEVICE)
+
+    if torch.cuda.device_count() > 1:
+        print(f"Using {torch.cuda.device_count()} GPUs with DataParallel")
+        net = nn.DataParallel(net)
+
+    try:
+        net = torch.compile(net, mode="reduce-overhead")
+        print("torch.compile: enabled")
+    except Exception as e:
+        print(f"torch.compile skipped: {e}")
+
+    print()
+
+    if args.eval_only:
+        evaluate(cfg, args.eval_games, args.eval_ms)
+    else:
+        if os.path.exists(cfg.ckpt):
+            print(f"Checkpoint found at '{cfg.ckpt}' — loading weights...")
+            ck = torch.load(cfg.ckpt, map_location=DEVICE, weights_only=False)
+
+            raw = _get_raw_model(net)
+            raw.load_state_dict(ck["model_state"])
+
+            start_iter = ck.get("iteration", 0)
+            if start_iter > 0:
+                cfg.lr = cfg.resume_lr
+                print(f"  Resuming from iter {start_iter} → lowering LR to {cfg.lr:.2e}")
+            else:
+                print("  Loaded pretrained model (iter 0)")
+            print()
+        else:
+            net = pretrain(net, cfg)
+
+        train(cfg, pretrained_net=net)
+        print("Training complete!")
+
+        evaluate(cfg, args.eval_games, args.eval_ms)
