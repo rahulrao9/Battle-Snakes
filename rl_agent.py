@@ -69,7 +69,7 @@ def info() -> Dict:
     return {
         "apiversion": "1",
         "author":     "MGAIA_AlphaZero",
-        "color":      "#24e374",
+        "color":      "#ff0000",
         "head":       "default",
         "tail":       "default",
     }

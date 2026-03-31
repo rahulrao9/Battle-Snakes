@@ -12,7 +12,7 @@ Changes in this version:
 
 import math, time, numpy as np, torch
 from typing import Dict, List, Optional
-from state_encoder import encode_state, decode_policy_mask, MOVE_ORDER, MOVE_TO_IDX
+from RL_Agent.state_encoder import encode_state, decode_policy_mask, MOVE_ORDER, MOVE_TO_IDX
 
 C_PUCT            = 2.5
 DIRICHLET_ALPHA   = 0.25
