@@ -1,61 +1,53 @@
-# Battlesnake Python Starter Project
+# BattlesnakeOfficial/rules
 
-An official Battlesnake template written in Python. Get started at [play.battlesnake.com](https://play.battlesnake.com).
+[![codecov](https://codecov.io/gh/BattlesnakeOfficial/rules/branch/master/graph/badge.svg)](https://codecov.io/gh/BattlesnakeOfficial/rules)
 
-![Battlesnake Logo](https://media.battlesnake.com/social/StarterSnakeGitHubRepos_Python.png)
+[Battlesnake](https://play.battlesnake.com) rules and game logic, implemented as a Go module. This code is used in production at [play.battlesnake.com](https://play.battlesnake.com). Issues and contributions welcome!
 
-This project is a great starting point for anyone wanting to program their first Battlesnake in Python. It can be run locally or easily deployed to a cloud provider of your choosing. See the [Battlesnake API Docs](https://docs.battlesnake.com/api) for more detail. 
 
-[![Run on Replit](https://repl.it/badge/github/BattlesnakeOfficial/starter-snake-python)](https://replit.com/@Battlesnake/starter-snake-python)
+## CLI for Running Battlesnake Games Locally
 
-## Technologies Used
+This repo provides a simple CLI tool to run games locally against your dev environment.
 
-This project uses [Python 3](https://www.python.org/) and [Flask](https://flask.palletsprojects.com/). It also comes with an optional [Dockerfile](https://docs.docker.com/engine/reference/builder/) to help with deployment.
+### Installation
 
-## Run Your Battlesnake
+Download precompiled binaries here: <br>
+[https://github.com/BattlesnakeOfficial/rules/releases](https://github.com/BattlesnakeOfficial/rules/releases)
 
-Install dependencies using pip
-
-```sh
-pip install -r requirements.txt
+Install as a Go package. Requires Go 1.18 or higher. [[Download](https://golang.org/dl/)]
+```
+go install github.com/BattlesnakeOfficial/rules/cli/battlesnake@latest
 ```
 
-Start your Battlesnake
-
-```sh
-python main.py
+Compile from source. Also requires Go 1.18 or higher.
+```
+git clone git@github.com:BattlesnakeOfficial/rules.git
+cd rules
+go build -o battlesnake ./cli/battlesnake/main.go
 ```
 
-You should see the following output once it is running
+### Usage
 
-```sh
-Running your Battlesnake at http://0.0.0.0:8000
- * Serving Flask app 'My Battlesnake'
- * Debug mode: off
+Example command to run a game locally:
+```
+battlesnake play -W 11 -H 11 --name <SNAKE_NAME> --url <SNAKE_URL> -g solo -v
 ```
 
-Open [localhost:8000](http://localhost:8000) in your browser and you should see
-
-```json
-{"apiversion":"1","author":"","color":"#888888","head":"default","tail":"default"}
-```
-
-## Play a Game Locally
-
-Install the [Battlesnake CLI](https://github.com/BattlesnakeOfficial/rules/tree/main/cli)
-* You can [download compiled binaries here](https://github.com/BattlesnakeOfficial/rules/releases)
-* or [install as a go package](https://github.com/BattlesnakeOfficial/rules/tree/main/cli#installation) (requires Go 1.18 or higher)
-
-Command to run a local game
-
-```sh
-battlesnake play -W 11 -H 11 --name 'Python Starter Project' --url http://localhost:8000 -g solo --browser
-```
-
-## Next Steps
-
-Continue with the [Battlesnake Quickstart Guide](https://docs.battlesnake.com/quickstart) to customize and improve your Battlesnake's behavior.
-
-**Note:** To play games on [play.battlesnake.com](https://play.battlesnake.com) you'll need to deploy your Battlesnake to a live web server OR use a port forwarding tool like [ngrok](https://ngrok.com/) to access your server locally.
+For more details, see the [CLI README](cli/README.md).
 
 
+## FAQ
+
+### Can I run games locally?
+
+Yes! [See the included CLI](cli/README.md).
+
+### How is this different from the old Battlesnake engine?
+
+The [old game engine](https://github.com/battlesnakeio/engine) was re-written in early 2020 to handle a higher volume of concurrent games. As part of that rebuild we moved the game logic into a separate Go module that gets compiled into the production engine.
+
+This provides two benefits: it makes it much simpler/easier to build new game modes, and it allows the community to get more involved in game development (without the maintenance overhead of the entire game engine).
+
+### Feedback
+
+* **Do you have an issue or suggestions for this repository?** Head over to our [Feedback Repository](https://play.battlesnake.com/feedback) today and let us know!

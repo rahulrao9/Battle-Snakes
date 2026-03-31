@@ -10,8 +10,6 @@ from neural_net     import BattlesnakeNet
 from az_mcts        import AlphaZeroMCTS
 
 
-# ── Replay buffer ─────────────────────────────────────────────────────────────
-
 class ReplayBuffer(Dataset):
     def __init__(self, maxn=300_000):
         self.buf = deque(maxlen=maxn)
@@ -40,8 +38,6 @@ class ReplayBuffer(Dataset):
         print(f"[Buffer] Loaded {len(data)} samples")
 
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
-
 def make_start(bsize=11, nsnakes=4):
     interior  = [(x, y) for x in range(2, bsize - 2) for y in range(2, bsize - 2)]
     positions = random.sample(interior, nsnakes)
@@ -58,45 +54,74 @@ def make_start(bsize=11, nsnakes=4):
 
 
 def _get_raw_model(net):
-    """Unwrap DataParallel and torch.compile wrappers."""
     raw = net
     while hasattr(raw, "module") or hasattr(raw, "_orig_mod"):
-        if hasattr(raw, "module"):
-            raw = raw.module
-        if hasattr(raw, "_orig_mod"):
-            raw = raw._orig_mod
+        if hasattr(raw, "module"):    raw = raw.module
+        if hasattr(raw, "_orig_mod"): raw = raw._orig_mod
     return raw
 
 
-# ── Single game ───────────────────────────────────────────────────────────────
+def _shaped_value(sid, alive_end, turn, length, bsize):
+    max_turns = bsize * bsize * 4
+    if sid in alive_end:
+        return 1.0
+    if not alive_end:
+        return 0.0
+    survival_bonus = min(turn / max_turns, 1.0) * 0.5
+    length_bonus   = min(length / 20.0,   1.0) * 0.3
+    return float(np.clip(-1.0 + survival_bonus + length_bonus, -1.0, 1.0))
+
 
 def run_game(net, bsize=11, nsnakes=4, ms=150, device="cpu"):
-    """Run one full self-play game on `device`."""
-    state = make_start(bsize, nsnakes)
-    hist  = []
-    maxT  = bsize * bsize * 4
+    """
+    Run one self-play game with 3-frame history passed to every MCTS call.
 
-    for _ in range(maxT):
+    game_history is a deque of the last 3 real board states, most-recent first.
+    Each MCTS agent receives [S_{t-1}, S_{t-2}] as its root_history so it can
+    reconstruct [S_t, S_{t-1}, S_{t-2}] once S_t is appended inside the tree.
+    """
+    state        = make_start(bsize, nsnakes)
+    hist         = []          # replay buffer accumulator
+    maxT         = bsize * bsize * 4
+    game_history = deque(maxlen=3)   # sliding window, most-recent first
+
+    for t in range(maxT):
+        # Prepend current state so index 0 is always the newest frame
+        game_history.appendleft(state)
+
         alive = [sid for sid, s in state.snakes.items() if s.is_alive]
         if len(alive) <= 1:
             break
+
         joint = {}
         for sid in alive:
-            ag = AlphaZeroMCTS(sid, net, ms, device)
+            # root_history = frames *before* the current state (S_{t-1}, S_{t-2})
+            # MCTS will see [current_node.state, …] via get_history(), which
+            # adds root_history only after exhausting tree-internal frames.
+            root_hist = list(game_history)[1:]   # skip index 0 (= current state)
+
+            ag = AlphaZeroMCTS(sid, net, ms, device, root_history=root_hist)
             mv, vp = ag.search_with_policy(state, training=True)
             joint[sid] = mv
-            hist.append((encode_state(state, sid), vp, sid))
+
+            # Encode using the full 3-frame window for the replay buffer
+            hist.append((
+                encode_state(list(game_history), sid),
+                vp,
+                sid,
+                t,
+                state.snakes[sid].length,
+            ))
+
         state = state.step(joint)
 
     alive_end = {sid for sid, s in state.snakes.items() if s.is_alive}
     out = []
-    for tensor, policy, sid in hist:
-        v = 1.0 if sid in alive_end else (0.0 if not alive_end else -1.0)
+    for tensor, policy, sid, turn, length in hist:
+        v = _shaped_value(sid, alive_end, turn, length, bsize)
         out.append((tensor, policy, v))
     return out
 
-
-# ── Training step ─────────────────────────────────────────────────────────────
 
 def train_batch(net, opt, buf, batch=512, device="cpu"):
     if len(buf) < batch:
@@ -118,8 +143,6 @@ def train_batch(net, opt, buf, batch=512, device="cpu"):
     return float(pl.detach()), float(vl.detach())
 
 
-# ── Main training loop ────────────────────────────────────────────────────────
-
 def train(cfg, pretrained_net=None):
     import warnings
     warnings.filterwarnings("ignore")
@@ -128,14 +151,9 @@ def train(cfg, pretrained_net=None):
     device = cfg.device
     opt    = torch.optim.Adam(net.parameters(), lr=cfg.lr)
 
-    sched = torch.optim.lr_scheduler.MultiStepLR(
-        opt, milestones=[150, 300, 450], gamma=0.3
-    )
-
     buf     = ReplayBuffer(300_000)
     start   = 0
     raw_net = _get_raw_model(net)
-    writer  = SummaryWriter(log_dir="runs/self_play_experiment")
 
     net_config = {
         "in_channels":    raw_net.in_channels,
@@ -153,11 +171,16 @@ def train(cfg, pretrained_net=None):
 
     buf.load(cfg.buf)
 
+    sched = torch.optim.lr_scheduler.CosineAnnealingLR(
+        opt, T_max=cfg.iters, eta_min=1e-5,
+        last_epoch=start - 1 if start > 0 else -1
+    )
+
+    writer = SummaryWriter(log_dir="runs/self_play_experiment")
+
     for i in range(start, cfg.iters):
         t0 = time.time()
 
-        # Self-play: sequential in the main process so the GPU is used for
-        # every MCTS forward pass. No inter-process overhead, no CUDA re-init.
         net.eval()
         new_samples = 0
         for g in range(cfg.games):
@@ -170,11 +193,12 @@ def train(cfg, pretrained_net=None):
                 print(f"  [Game {g} error] {e}")
             if (g + 1) % 10 == 0:
                 print(f"  self-play {g+1}/{cfg.games} | "
-                      f"+{new_samples} samples | {time.time()-t0:.0f}s", flush=True)
+                      f"+{new_samples} samples | "
+                      f"~{(time.time()-t0)/((g+1)/10):.0f}s per 10 games",
+                      flush=True)
 
         sp_time = time.time() - t0
 
-        # Gradient updates
         net.train()
         total_pl = total_vl = 0.0
         if len(buf) >= cfg.batch:

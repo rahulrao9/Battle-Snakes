@@ -9,7 +9,7 @@ from pathlib import Path
 # ==========================================
 # CONFIGURATION
 # ==========================================
-GAMES_PER_TRIAL = 1  
+GAMES_PER_TRIAL = 10  
 BOARD_SIZE = 11
 N_TRIALS = 40         
 
@@ -21,7 +21,7 @@ TUNING_CMD = ["python", "vanilla_mcts_agent.py"]
 
 LOG_PATH = Path("vanilla_optuna_match.json")
 # THE NEW CSV LOG FILE
-CSV_FILENAME = "vanilla_optuna_results.csv"
+CSV_FILENAME = "vanilla_optuna_results-10.csv"
 
 def load_last_state(path: Path):
     if not path.exists(): return None
@@ -79,7 +79,7 @@ def objective(trial):
                 else: draws += 1
             else: draws += 1
 
-            if game_num == 2 and mcts_wins == 0 and draws == 0:
+            if game_num == 6 and mcts_wins == 0 and draws == 0:
                 print("    [Pruned] Agent lost 3 straight. Aborting to save time.")
                 break
 

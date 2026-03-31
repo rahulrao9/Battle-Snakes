@@ -5,3 +5,5 @@ ctrl+a d
 ctrl+shift+p
 tensorboard --logdir=runs --port=6006
 source env/bin/activate
+chmod +x run.sh
+./run.sh
