@@ -6,8 +6,8 @@ from collections import deque
 from server import run_server
 import os 
 MOVES = {"up": (0, 1), "down": (0, -1), "left": (-1, 0), "right": (1, 0)}
-C_PARAM = float(os.environ.get("MCTS_C_PARAM", "1.414"))
-DEPTH_LIMIT = int(os.environ.get("MCTS_DEPTH_LIMIT", "15"))
+C_PARAM = 2.207
+DEPTH_LIMIT = 13
 
 # ==========================================
 # Forward Model (Fast Physics Engine)
@@ -254,7 +254,7 @@ class MCTSAgent:
             if node.state.snakes.get(self.my_id, Snake("x", [], 0, False)).is_alive and not node.is_fully_expanded():
                 node = node.expand()
                 
-            score = node.simulate(depth_limit=15)
+            score = node.simulate(depth_limit=DEPTH_LIMIT)
             node.backpropagate(score)
                 
             iterations += 1

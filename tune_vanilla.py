@@ -18,6 +18,7 @@ BASELINE_PORT = "8000"
 TUNING_PORT = "8001"
 BASELINE_CMD = ["python", "heuristic_agent.py"]
 TUNING_CMD = ["python", "vanilla_mcts_agent.py"]  
+BATTLESNAKE_BIN = "/tmp/battlesnake-rules/battlesnake"
 
 LOG_PATH = Path("vanilla_optuna_match.json")
 # THE NEW CSV LOG FILE
@@ -58,7 +59,7 @@ def objective(trial):
             if LOG_PATH.exists(): LOG_PATH.unlink()
 
             cli_cmd = [
-                "battlesnake", "play", 
+                BATTLESNAKE_BIN, "play", 
                 "-W", str(BOARD_SIZE), "-H", str(BOARD_SIZE),
                 "-g", "standard", "--timeout", "1000",
                 "--name", "Vanilla_MCTS", "--url", f"http://127.0.0.1:{TUNING_PORT}",

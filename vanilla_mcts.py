@@ -4,6 +4,10 @@ import random
 from typing import Dict, List, Set, Tuple
 from collections import deque
 from server import run_server
+#best parameters
+# Best Trial Score: 0.400
+C_PARAM: 2.207
+DEPTH_LIMIT: 13
 
 MOVES = {"up": (0, 1), "down": (0, -1), "left": (-1, 0), "right": (1, 0)}
 
@@ -179,7 +183,7 @@ class MCTSNode:
         self.children.append(child_node)
         return child_node
 
-    def best_child(self, c_param: float = 1.414):
+    def best_child(self, c_param: float = C_PARAM):
         best_ucb = float('-inf')
         best_nodes = []
 
@@ -200,7 +204,7 @@ class MCTSNode:
                 
         return random.choice(best_nodes) if best_nodes else self.children[0]
     
-    def simulate(self, depth_limit: int = 15) -> float:
+    def simulate(self, depth_limit: int = DEPTH_LIMIT) -> float:
         current_state = self.state.clone()
         depth = 0
         
@@ -252,7 +256,7 @@ class MCTSAgent:
             if node.state.snakes.get(self.my_id, Snake("x", [], 0, False)).is_alive and not node.is_fully_expanded():
                 node = node.expand()
                 
-            score = node.simulate(depth_limit=15)
+            score = node.simulate(depth_limit=DEPTH_LIMIT)
             node.backpropagate(score)
                 
             iterations += 1

@@ -9,9 +9,16 @@ import os
 from heuristic_agent import evaluate_state as heavy_voronoi_eval
 
 MOVES = {"up": (0, 1), "down": (0, -1), "left": (-1, 0), "right": (1, 0)}
-C_PARAM = float(os.environ.get("MCTS_C_PARAM", "1.414"))
-DEPTH_LIMIT = int(os.environ.get("MCTS_DEPTH_LIMIT", "15"))
-PB_WEIGHT = float(os.environ.get("MCTS_PB_WEIGHT", "5.0"))
+# C_PARAM = float(os.environ.get("MCTS_C_PARAM", "1.414"))
+# DEPTH_LIMIT = int(os.environ.get("MCTS_DEPTH_LIMIT", "15"))
+# PB_WEIGHT = float(os.environ.get("MCTS_PB_WEIGHT", "5.0"))
+# EARLY_GAME_TARGET_LENGTH = int(os.environ.get("MCTS_TARGET_LENGTH", "10"))
+
+C_PARAM =  1.414
+DEPTH_LIMIT = 15
+PB_WEIGHT = 5.0
+EARLY_GAME_TARGET_LENGTH = 10
+
 def get_neighbors(x, y, width, height):
     return [(nx, ny) for nx, ny in [(x, y+1), (x, y-1), (x-1, y), (x+1, y)] 
             if 0 <= nx < width and 0 <= ny < height]
@@ -173,7 +180,7 @@ class GameState:
                 if (head[0]+MOVES[m][0], head[1]+MOVES[m][1]) in self.food:
                     return m
                     
-        if (snake.health < 60 or snake.length < 10) and self.food:
+        if (snake.health < 60 or snake.length < EARLY_GAME_TARGET_LENGTH) and self.food:
             best_m = choices[0]
             best_dist = float('inf')
             for m in choices:
@@ -363,7 +370,7 @@ class MCTSAgent:
             if node.state.snakes.get(self.my_id, Snake("x", [], 0, False)).is_alive and not node.is_fully_expanded():
                 node = node.expand()
                 
-            score = node.simulate(depth_limit=15)
+            score = node.simulate(depth_limit=DEPTH_LIMIT)
             node.backpropagate(score)
             iterations += 1
 

@@ -13,6 +13,11 @@ MOVES = {"up": (0, 1), "down": (0, -1), "left": (-1, 0), "right": (1, 0)}
 C_PARAM = float(os.environ.get("MCTS_C_PARAM", "1.414"))
 DEPTH_LIMIT = int(os.environ.get("MCTS_DEPTH_LIMIT", "15"))
 PB_WEIGHT = float(os.environ.get("MCTS_PB_WEIGHT", "5.0"))
+EARLY_GAME_TARGET_LENGTH = int(os.environ.get("MCTS_TARGET_LENGTH", "10"))
+# C_PARAM =  1.414
+# DEPTH_LIMIT = 15
+# PB_WEIGHT = 5.0
+# EARLY_GAME_TARGET_LENGTH = 10
 # ==========================================
 # Forward Model (Fast Physics Engine)
 # ==========================================
@@ -118,7 +123,7 @@ class GameState:
         head = snake.head
         
         # Path to food if health is dropping and safe moves exist
-        if (snake.health < 50 or snake.length < 10) and self.food:
+        if (snake.health < 50 or snake.length < EARLY_GAME_TARGET_LENGTH) and self.food:
             best_m = safe_moves[0]
             best_dist = float('inf')
             for m in safe_moves:
@@ -325,7 +330,7 @@ class MCTSAgent:
             if node.state.snakes.get(self.my_id, Snake("x", [], 0, False)).is_alive and not node.is_fully_expanded():
                 node = node.expand()
                 
-            score = node.simulate(depth_limit=12)
+            score = node.simulate(depth_limit=DEPTH_LIMIT)
             node.backpropagate(score)
                 
             iterations += 1
