@@ -9,6 +9,8 @@ from server import run_server
 from heuristic_agent import evaluate_state as heavy_voronoi_eval
 
 MOVES = {"up": (0, 1), "down": (0, -1), "left": (-1, 0), "right": (1, 0)}
+#best parameters
+1.452,6,10.805,15
 
 # ==========================================
 # Forward Model (Fast Physics Engine)

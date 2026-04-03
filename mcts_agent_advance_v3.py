@@ -15,7 +15,7 @@ DEPTH_LIMIT = int(os.environ.get("MCTS_DEPTH_LIMIT", "15"))
 PB_WEIGHT = float(os.environ.get("MCTS_PB_WEIGHT", "5.0"))
 EARLY_GAME_TARGET_LENGTH = int(os.environ.get("MCTS_TARGET_LENGTH", "10"))
 # C_PARAM =  1.414
-# DEPTH_LIMIT = 15
+# DEPTH_LIMIT = 12
 # PB_WEIGHT = 5.0
 # EARLY_GAME_TARGET_LENGTH = 10
 # ==========================================

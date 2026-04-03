@@ -9,6 +9,11 @@ from server import run_server
 from heuristic_agent import evaluate_state as heavy_voronoi_eval
 
 MOVES = {"up": (0, 1), "down": (0, -1), "left": (-1, 0), "right": (1, 0)}
+#best parameters
+C_PARAM =  1.048
+DEPTH_LIMIT = 16
+PB_WEIGHT = 10.523
+EARLY_GAME_TARGET_LENGTH = 8
 
 def get_neighbors(x, y, width, height):
     return [(nx, ny) for nx, ny in [(x, y+1), (x, y-1), (x-1, y), (x+1, y)] 

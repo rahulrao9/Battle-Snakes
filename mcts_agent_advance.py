@@ -13,11 +13,11 @@ MOVES = {"up": (0, 1), "down": (0, -1), "left": (-1, 0), "right": (1, 0)}
 # DEPTH_LIMIT = int(os.environ.get("MCTS_DEPTH_LIMIT", "15"))
 # PB_WEIGHT = float(os.environ.get("MCTS_PB_WEIGHT", "5.0"))
 # EARLY_GAME_TARGET_LENGTH = int(os.environ.get("MCTS_TARGET_LENGTH", "10"))
-
-C_PARAM =  1.414
-DEPTH_LIMIT = 15
-PB_WEIGHT = 5.0
-EARLY_GAME_TARGET_LENGTH = 10
+#best params from tuning: C_PARAM=1.048, DEPTH_LIMIT=16, PB_WEIGHT=10.523, EARLY_GAME_TARGET_LENGTH=8
+C_PARAM =  1.048
+DEPTH_LIMIT = 16
+PB_WEIGHT = 10.523
+EARLY_GAME_TARGET_LENGTH = 8
 
 def get_neighbors(x, y, width, height):
     return [(nx, ny) for nx, ny in [(x, y+1), (x, y-1), (x-1, y), (x+1, y)] 
