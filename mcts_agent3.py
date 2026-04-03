@@ -10,8 +10,11 @@ from heuristic_agent import evaluate_state as heavy_voronoi_eval
 
 MOVES = {"up": (0, 1), "down": (0, -1), "left": (-1, 0), "right": (1, 0)}
 #best parameters
-1.452,6,10.805,15
-
+# 1.452,6,10.805,15
+C_PARAM =  1.452
+DEPTH_LIMIT = 6
+PB_WEIGHT = 10.805
+EARLY_GAME_TARGET_LENGTH = 15
 # ==========================================
 # Forward Model (Fast Physics Engine)
 # ==========================================
@@ -117,7 +120,7 @@ class GameState:
         head = snake.head
         
         # Path to food if health is dropping and safe moves exist
-        if (snake.health < 50 or snake.length < 10) and self.food:
+        if (snake.health < 50 or snake.length < EARLY_GAME_TARGET_LENGTH) and self.food:
             best_m = safe_moves[0]
             best_dist = float('inf')
             for m in safe_moves:
@@ -241,7 +244,7 @@ class MCTSNode:
         self.children.append(child_node)
         return child_node
 
-    def best_child(self, c_param: float = 1.414, pb_weight: float = 5.0):
+    def best_child(self, c_param: float = C_PARAM, pb_weight: float = PB_WEIGHT):
         best_ucb = float('-inf')
         best_nodes = []
 
@@ -266,7 +269,7 @@ class MCTSNode:
             
         return random.choice(best_nodes) if best_nodes else self.children[0]
     
-    def simulate(self, depth_limit: int = 12) -> float:
+    def simulate(self, depth_limit: int = DEPTH_LIMIT) -> float:
         if self.proven_loss:
             return 0.0
             
@@ -324,7 +327,7 @@ class MCTSAgent:
             if node.state.snakes.get(self.my_id, Snake("x", [], 0, False)).is_alive and not node.is_fully_expanded():
                 node = node.expand()
                 
-            score = node.simulate(depth_limit=12)
+            score = node.simulate(depth_limit=DEPTH_LIMIT)
             node.backpropagate(score)
                 
             iterations += 1

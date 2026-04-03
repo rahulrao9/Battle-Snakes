@@ -176,7 +176,7 @@ class GameState:
                 if (head[0]+MOVES[m][0], head[1]+MOVES[m][1]) in self.food:
                     return m
                     
-        if (snake.health < 60 or snake.length < 10) and self.food:
+        if (snake.health < 60 or snake.length < EARLY_GAME_TARGET_LENGTH) and self.food:
             best_m = choices[0]
             best_dist = float('inf')
             for m in choices:
@@ -300,7 +300,7 @@ class MCTSNode:
         self.children.append(child_node)
         return child_node
 
-    def best_child(self, c_param: float = 1.414, pb_weight: float = 10.0):
+    def best_child(self, c_param: float = C_PARAM, pb_weight: float = PB_WEIGHT):
         best_ucb = float('-inf')
         best_nodes = []
 
@@ -321,7 +321,7 @@ class MCTSNode:
                 
         return random.choice(best_nodes) if best_nodes else self.children[0]
     
-    def simulate(self, depth_limit: int = 15) -> float:
+    def simulate(self, depth_limit: int = DEPTH_LIMIT) -> float:
         current_state = self.state.clone()
         depth = 0
         
@@ -366,7 +366,7 @@ class MCTSAgent:
             if node.state.snakes.get(self.my_id, Snake("x", [], 0, False)).is_alive and not node.is_fully_expanded():
                 node = node.expand()
                 
-            score = node.simulate(depth_limit=15)
+            score = node.simulate(depth_limit=DEPTH_LIMIT)
             node.backpropagate(score)
             iterations += 1
 
