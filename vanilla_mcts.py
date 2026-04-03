@@ -6,8 +6,8 @@ from collections import deque
 from server import run_server
 #best parameters
 # Best Trial Score: 0.400
-C_PARAM: 2.207
-DEPTH_LIMIT: 13
+C_PARAM = 2.207
+DEPTH_LIMIT = 13
 
 MOVES = {"up": (0, 1), "down": (0, -1), "left": (-1, 0), "right": (1, 0)}
 
