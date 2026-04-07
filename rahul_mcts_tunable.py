@@ -854,8 +854,8 @@ game_state_turn = 0
 def info() -> Dict:
     return {
         "apiversion": "1",
-        "author":     "MGAIA_RahulMCTS",
-        "color":      "#05FFE6",
+        "author":     "nagin",
+        "color":      "#FF0505",
         "head":       "default",
         "tail":       "default",
     }

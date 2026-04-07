@@ -11,7 +11,7 @@ start "Snake 2 - MCTS 3" cmd /k "set PORT=8001 && python mcts_agent3.py"
 
 :: Start Snake 3 on port 8002
 echo Starting RL Agent on Port 8002...
-start "Snake 3 - RL Agent" cmd /k "set PORT=8002 && python rl_agent.py"
+start "Snake 3 - nagin" cmd /k "set PORT=8002 && python rahul_mcts_tunable.py"
 
 :: Start Snake 4 on port 8003
 echo Starting Vanilla MCTS on Port 8003...
