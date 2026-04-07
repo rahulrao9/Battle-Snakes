@@ -1,0 +1,168 @@
+── Pre-flight ────────────────────────────────────────────────────
+  ✓ heuristic_agent.py  [Heuristic]
+  ✓ mcts_agent3.py  [MCTS3]
+  ✓ vanilla_mcts.py  [Vanilla]
+  ✓ rahul_mcts_tunable.py  [target]
+  ✓ ./battlesnake  [engine]
+
+  CLI timeout : 900 ms  (rahul budget: 800 ms)
+  Workers     : 8
+  Trials      : 60  ×  20 games each
+  Opponent pool (3): Heuristic, MCTS3, Vanilla
+  Opponent per game: drawn i.i.d. from pool (anti-overfit)
+─────────────────────────────────────────────────────────────────
+
+Resuming study: 0 done, 60 remaining → distributing across 8 workers
+
+  [W7|T0] C=0.93 D=23 PB=10.5 RAVE=1112 | LT=55 LL=15 | FWE=2.1 SWL=4.2 CWL=0.2 CorWL=1.7 KWL=6.9
+  [W6|T7] C=1.95 D=20 PB=8.2 RAVE=919 | LT=27 LL=10 | FWE=3.3 SWL=1.8 CWL=2.3 CorWL=5.4 KWL=1.7
+  [W0|T6] C=2.84 D=8 PB=5.6 RAVE=677 | LT=47 LL=10 | FWE=2.9 SWL=1.4 CWL=1.7 CorWL=4.8 KWL=1.8
+  [W4|T2] C=0.55 D=17 PB=19.5 RAVE=486 | LT=35 LL=11 | FWE=5.4 SWL=4.3 CWL=0.0 CorWL=2.9 KWL=3.1
+  [W5|T5] C=1.23 D=21 PB=6.1 RAVE=567 | LT=50 LL=10 | FWE=4.6 SWL=1.2 CWL=3.4 CorWL=0.6 KWL=4.6
+  [W2|T3] C=1.22 D=9 PB=7.7 RAVE=794 | LT=78 LL=11 | FWE=2.8 SWL=3.0 CWL=2.7 CorWL=3.1 KWL=6.4
+  [W1|T4] C=0.98 D=11 PB=16.1 RAVE=1125 | LT=32 LL=8 | FWE=3.5 SWL=2.9 CWL=3.1 CorWL=4.3 KWL=3.2
+  [W3|T1] C=1.84 D=10 PB=9.6 RAVE=55 | LT=62 LL=5 | FWE=2.5 SWL=4.9 CWL=1.9 CorWL=4.6 KWL=6.2
+  [W7|T0] score=0.2339 wr=0.18 surv=0.302 games=11 | W=2 D=0 L=9 | by-opp: Heuristic=1/5  MCTS3=1/3  Vanilla=0/3
+  [W7|T8] C=0.83 D=22 PB=17.8 RAVE=640 | LT=40 LL=13 | FWE=5.2 SWL=1.4 CWL=0.4 CorWL=3.9 KWL=0.1
+  [W5|T5] score=0.4355 wr=0.50 surv=0.224 games=20 | W=10 D=1 L=9 | by-opp: Heuristic=6/11  MCTS3=1/4  Vanilla=3/5
+  [W5|T9] C=1.96 D=14 PB=6.9 RAVE=326 | LT=55 LL=5 | FWE=3.1 SWL=3.0 CWL=1.2 CorWL=4.2 KWL=4.6
+  [W2|T3] score=0.3714 wr=0.40 surv=0.251 games=20 | W=8 D=0 L=12 | by-opp: Heuristic=2/7  MCTS3=2/6  Vanilla=4/7
+  [W2|T10] C=2.79 D=8 PB=13.0 RAVE=930 | LT=52 LL=11 | FWE=1.7 SWL=4.8 CWL=1.4 CorWL=1.1 KWL=3.0
+  [W4|T2] score=0.3630 wr=0.40 surv=0.241 games=20 | W=8 D=1 L=11 | by-opp: Heuristic=1/7  MCTS3=2/4  Vanilla=5/9
+  [W4|T11] C=1.78 D=18 PB=7.0 RAVE=1104 | LT=67 LL=7 | FWE=2.9 SWL=0.6 CWL=1.4 CorWL=4.9 KWL=6.9
+  [W6|T7] score=0.3388 wr=0.35 surv=0.284 games=20 | W=7 D=0 L=13 | by-opp: Heuristic=2/6  MCTS3=3/9  Vanilla=2/5
+  [W6|T12] C=1.12 D=17 PB=10.3 RAVE=644 | LT=28 LL=6 | FWE=2.4 SWL=1.5 CWL=2.0 CorWL=3.5 KWL=5.2
+  [W1|T4] score=0.3651 wr=0.40 surv=0.272 games=20 | W=8 D=0 L=12 | by-opp: Heuristic=2/4  MCTS3=3/9  Vanilla=3/7
+  [W1|T13] C=2.66 D=8 PB=11.4 RAVE=363 | LT=55 LL=5 | FWE=5.8 SWL=4.3 CWL=3.1 CorWL=5.8 KWL=0.1
+  [W0|T6] score=0.4990 wr=0.55 surv=0.310 games=20 | W=11 D=0 L=9 | by-opp: Heuristic=1/5  MCTS3=5/8  Vanilla=5/7
+  [W0|T14] C=0.86 D=23 PB=17.1 RAVE=1175 | LT=26 LL=6 | FWE=2.3 SWL=2.3 CWL=0.1 CorWL=2.7 KWL=5.5
+  [W5|T9] score=0.1513 wr=0.09 surv=0.289 games=11 | W=1 D=0 L=10 | by-opp: Heuristic=0/5  MCTS3=1/5  Vanilla=0/1
+  [W5|T15] C=0.73 D=22 PB=5.3 RAVE=1077 | LT=48 LL=11 | FWE=3.6 SWL=2.9 CWL=2.0 CorWL=0.3 KWL=4.7
+  [W3|T1] score=0.4324 wr=0.45 surv=0.329 games=20 | W=9 D=1 L=10 | by-opp: Heuristic=2/4  MCTS3=2/10  Vanilla=5/6
+  [W3|T16] C=2.08 D=14 PB=2.1 RAVE=913 | LT=67 LL=10 | FWE=3.1 SWL=2.2 CWL=0.8 CorWL=5.4 KWL=1.4
+  [W7|T8] score=0.3298 wr=0.35 surv=0.253 games=20 | W=7 D=0 L=13 | by-opp: Heuristic=3/8  MCTS3=0/3  Vanilla=4/9
+  [W7|T17] C=2.76 D=14 PB=3.1 RAVE=227 | LT=71 LL=8 | FWE=1.1 SWL=0.6 CWL=3.8 CorWL=6.0 KWL=1.3
+  [W4|T11] score=0.3334 wr=0.35 surv=0.252 games=20 | W=7 D=0 L=13 | by-opp: Heuristic=2/10  MCTS3=2/4  Vanilla=3/6
+  [W4|T18] C=2.94 D=14 PB=2.5 RAVE=480 | LT=45 LL=9 | FWE=1.1 SWL=1.4 CWL=3.9 CorWL=0.4 KWL=4.5
+  [W2|T10] score=0.3423 wr=0.35 surv=0.290 games=20 | W=7 D=0 L=13 | by-opp: Heuristic=1/6  MCTS3=2/5  Vanilla=4/9
+  [W2|T19] C=2.82 D=14 PB=2.6 RAVE=512 | LT=45 LL=9 | FWE=6.9 SWL=1.2 CWL=3.7 CorWL=0.2 KWL=4.6
+  [W6|T12] score=0.3402 wr=0.35 surv=0.264 games=20 | W=7 D=0 L=13 | by-opp: Heuristic=2/8  MCTS3=2/5  Vanilla=3/7
+  [W6|T20] C=2.99 D=14 PB=2.2 RAVE=417 | LT=45 LL=9 | FWE=6.8 SWL=0.6 CWL=3.9 CorWL=0.5 KWL=1.6
+  [W0|T14] score=0.3466 wr=0.35 surv=0.294 games=20 | W=7 D=0 L=13 | by-opp: Heuristic=3/10  MCTS3=1/4  Vanilla=3/6
+  [W0|T21] C=2.78 D=19 PB=2.7 RAVE=401 | LT=42 LL=9 | FWE=7.0 SWL=0.7 CWL=3.8 CorWL=0.3 KWL=1.7
+  [W5|T15] score=0.3457 wr=0.35 surv=0.297 games=20 | W=7 D=0 L=13 | by-opp: Heuristic=2/8  MCTS3=4/7  Vanilla=1/5
+  [W5|T22] C=2.92 D=13 PB=2.1 RAVE=394 | LT=44 LL=9 | FWE=6.9 SWL=0.6 CWL=3.9 CorWL=5.7 KWL=1.8
+  [W3|T16] score=0.3778 wr=0.40 surv=0.282 games=20 | W=8 D=0 L=12 | by-opp: Heuristic=2/5  MCTS3=3/8  Vanilla=3/7
+  [W3|T23] C=2.72 D=13 PB=3.0 RAVE=376 | LT=45 LL=9 | FWE=6.5 SWL=0.6 CWL=3.7 CorWL=0.0 KWL=2.0
+  [W1|T13] score=0.4046 wr=0.40 surv=0.372 games=20 | W=8 D=1 L=11 | by-opp: Heuristic=1/7  MCTS3=3/6  Vanilla=4/7
+  [W1|T24] C=1.46 D=12 PB=2.9 RAVE=499 | LT=44 LL=9 | FWE=4.5 SWL=0.8 CWL=4.0 CorWL=2.0 KWL=1.9
+  [W7|T17] score=0.3426 wr=0.35 surv=0.288 games=20 | W=7 D=0 L=13 | by-opp: Heuristic=1/6  MCTS3=5/8  Vanilla=1/6
+  [W7|T25] C=1.52 D=20 PB=4.8 RAVE=494 | LT=44 LL=14 | FWE=4.6 SWL=1.2 CWL=3.7 CorWL=1.7 KWL=4.0
+  [W1|T24] score=0.1905 wr=0.18 surv=0.187 games=11 | W=2 D=1 L=8 | by-opp: Heuristic=1/5  MCTS3=1/2  Vanilla=0/4
+  [W1|T26] C=2.20 D=19 PB=14.1 RAVE=715 | LT=40 LL=14 | FWE=4.3 SWL=1.2 CWL=3.5 CorWL=0.1 KWL=4.1
+  [W5|T22] score=0.2226 wr=0.18 surv=0.287 games=11 | W=2 D=1 L=8 | by-opp: Heuristic=1/4  MCTS3=0/3  Vanilla=1/4
+  [W5|T27] C=2.36 D=20 PB=13.2 RAVE=744 | LT=60 LL=13 | FWE=4.4 SWL=1.1 CWL=2.6 CorWL=0.5 KWL=4.3
+  [W4|T18] score=0.3793 wr=0.40 surv=0.291 games=20 | W=8 D=2 L=10 | by-opp: Heuristic=4/7  MCTS3=0/5  Vanilla=4/8
+  [W4|T28] C=2.39 D=10 PB=5.2 RAVE=108 | LT=61 LL=13 | FWE=4.5 SWL=3.8 CWL=1.7 CorWL=4.8 KWL=6.0
+  [W2|T19] score=0.3436 wr=0.35 surv=0.307 games=20 | W=7 D=2 L=11 | by-opp: Heuristic=1/5  MCTS3=0/3  Vanilla=6/12
+  [W2|T29] C=2.45 D=11 PB=5.1 RAVE=84 | LT=62 LL=13 | FWE=4.0 SWL=3.6 CWL=1.7 CorWL=4.8 KWL=5.9
+  [W6|T20] score=0.3498 wr=0.35 surv=0.295 games=20 | W=7 D=1 L=12 | by-opp: Heuristic=4/6  MCTS3=2/5  Vanilla=1/9
+  [W6|T30] C=2.46 D=10 PB=4.8 RAVE=138 | LT=61 LL=13 | FWE=4.1 SWL=3.9 CWL=1.7 CorWL=4.8 KWL=3.8
+  [W7|T25] score=0.1697 wr=0.09 surv=0.313 games=11 | W=1 D=0 L=10 | by-opp: Heuristic=0/3  MCTS3=1/5  Vanilla=0/3
+  [W7|T31] C=2.36 D=10 PB=9.1 RAVE=54 | LT=61 LL=13 | FWE=4.2 SWL=3.6 CWL=1.7 CorWL=4.7 KWL=6.0
+  [W0|T21] score=0.5337 wr=0.60 surv=0.312 games=20 | W=12 D=0 L=8 | by-opp: Heuristic=5/9  MCTS3=3/6  Vanilla=4/5
+  [W0|T32] C=2.38 D=20 PB=4.8 RAVE=741 | LT=38 LL=13 | FWE=6.3 SWL=1.0 CWL=3.4 CorWL=0.9 KWL=2.4
+  [W3|T23] score=0.3730 wr=0.40 surv=0.274 games=20 | W=8 D=0 L=12 | by-opp: Heuristic=3/8  MCTS3=2/5  Vanilla=3/7
+  [W3|T33] C=2.42 D=20 PB=5.7 RAVE=787 | LT=37 LL=12 | FWE=4.1 SWL=1.9 CWL=3.3 CorWL=1.1 KWL=2.6
+  [W4|T28] score=0.4001 wr=0.45 surv=0.246 games=20 | W=9 D=1 L=10 | by-opp: Heuristic=2/7  MCTS3=3/6  Vanilla=4/7
+  [W4|T34] C=2.44 D=20 PB=4.5 RAVE=739 | LT=39 LL=12 | FWE=6.0 SWL=2.0 CWL=3.4 CorWL=0.9 KWL=0.9
+  [W2|T29] score=0.3650 wr=0.40 surv=0.242 games=20 | W=8 D=0 L=12 | by-opp: Heuristic=3/7  MCTS3=3/7  Vanilla=2/6
+  [W2|T35] C=2.25 D=20 PB=13.8 RAVE=735 | LT=39 LL=12 | FWE=6.2 SWL=2.0 CWL=3.3 CorWL=0.9 KWL=2.5
+  [W6|T30] score=0.3677 wr=0.40 surv=0.247 games=20 | W=8 D=1 L=11 | by-opp: Heuristic=4/8  MCTS3=0/2  Vanilla=4/10
+  [W6|T36] C=2.20 D=20 PB=13.1 RAVE=738 | LT=39 LL=12 | FWE=6.0 SWL=1.0 CWL=3.2 CorWL=0.8 KWL=2.6
+  [W1|T26] score=0.4657 wr=0.50 surv=0.305 games=20 | W=10 D=0 L=10 | by-opp: Heuristic=4/5  MCTS3=1/5  Vanilla=5/10
+  [W1|T37] C=2.23 D=18 PB=14.2 RAVE=769 | LT=39 LL=15 | FWE=6.0 SWL=2.0 CWL=2.8 CorWL=1.0 KWL=2.4
+  [W0|T32] score=0.3915 wr=0.45 surv=0.210 games=20 | W=9 D=0 L=11 | by-opp: Heuristic=0/7  MCTS3=3/6  Vanilla=6/7
+  [W0|T38] C=2.19 D=19 PB=14.1 RAVE=733 | LT=50 LL=15 | FWE=5.1 SWL=1.8 CWL=3.4 CorWL=0.9 KWL=0.7
+  [W5|T27] score=0.4922 wr=0.55 surv=0.323 games=20 | W=11 D=0 L=9 | by-opp: Heuristic=3/5  MCTS3=5/8  Vanilla=3/7
+  [W7|T31] score=0.4152 wr=0.45 surv=0.272 games=20 | W=9 D=0 L=11 | by-opp: Heuristic=2/8  MCTS3=3/6  Vanilla=4/6
+  [W5|T39] C=2.19 D=18 PB=14.0 RAVE=726 | LT=40 LL=16 | FWE=6.0 SWL=1.8 CWL=2.5 CorWL=1.2 KWL=0.6
+  [W7|T40] C=2.59 D=18 PB=13.5 RAVE=734 | LT=39 LL=15 | FWE=5.1 SWL=1.8 CWL=2.6 CorWL=1.3 KWL=0.9
+  [W3|T33] score=0.3513 wr=0.35 surv=0.313 games=20 | W=7 D=0 L=13 | by-opp: Heuristic=2/10  MCTS3=3/7  Vanilla=2/3
+  [W3|T41] C=2.17 D=18 PB=13.6 RAVE=722 | LT=32 LL=16 | FWE=5.0 SWL=1.0 CWL=2.7 CorWL=1.6 KWL=0.9
+  [W7|T40] score=0.2409 wr=0.18 surv=0.303 games=11 | W=2 D=0 L=9 | by-opp: Heuristic=0/3  MCTS3=1/4  Vanilla=1/4
+  [W7|T42] C=2.13 D=18 PB=14.5 RAVE=703 | LT=32 LL=16 | FWE=5.7 SWL=1.0 CWL=2.8 CorWL=2.3 KWL=0.7
+  [W5|T39] score=0.2360 wr=0.18 surv=0.324 games=11 | W=2 D=0 L=9 | by-opp: Heuristic=0/5  MCTS3=2/2  Vanilla=0/4
+  [W5|T43] C=2.23 D=16 PB=15.1 RAVE=870 | LT=34 LL=15 | FWE=4.9 SWL=0.9 CWL=2.9 CorWL=2.3 KWL=3.6
+  [W1|T37] score=0.5489 wr=0.65 surv=0.243 games=20 | W=13 D=0 L=7 | by-opp: Heuristic=6/8  MCTS3=3/4  Vanilla=4/8
+  [W1|T44] C=2.63 D=16 PB=15.3 RAVE=865 | LT=32 LL=16 | FWE=5.7 SWL=2.6 CWL=3.0 CorWL=2.4 KWL=2.7
+  [W6|T36] score=0.5548 wr=0.65 surv=0.291 games=20 | W=13 D=0 L=7 | by-opp: Heuristic=4/9  MCTS3=5/6  Vanilla=4/5
+  [W6|T45] C=1.64 D=16 PB=21.2 RAVE=830 | LT=32 LL=12 | FWE=5.7 SWL=2.5 CWL=3.1 CorWL=2.3 KWL=2.4
+  [W4|T34] score=0.3995 wr=0.40 surv=0.318 games=20 | W=8 D=2 L=10 | by-opp: Heuristic=4/9  MCTS3=4/8  Vanilla=0/3
+  [W4|T46] C=1.58 D=24 PB=15.0 RAVE=871 | LT=36 LL=16 | FWE=5.5 SWL=2.6 CWL=3.0 CorWL=2.2 KWL=2.4
+  [W2|T35] score=0.4633 wr=0.50 surv=0.318 games=20 | W=10 D=1 L=9 | by-opp: Heuristic=3/3  MCTS3=2/8  Vanilla=5/9
+  [W2|T47] C=2.59 D=16 PB=15.5 RAVE=865 | LT=33 LL=16 | FWE=5.5 SWL=0.9 CWL=3.0 CorWL=1.5 KWL=2.9
+  [W3|T41] score=0.2180 wr=0.18 surv=0.287 games=11 | W=2 D=0 L=9 | by-opp: Heuristic=1/6  MCTS3=0/2  Vanilla=1/3
+  [W3|T48] C=2.60 D=16 PB=15.2 RAVE=870 | LT=49 LL=15 | FWE=5.5 SWL=2.4 CWL=2.9 CorWL=2.1 KWL=2.9
+  [W0|T38] score=0.3141 wr=0.30 surv=0.298 games=20 | W=6 D=0 L=14 | by-opp: Heuristic=1/3  MCTS3=3/10  Vanilla=2/7
+  [W0|T49] C=1.96 D=16 PB=12.2 RAVE=878 | LT=33 LL=14 | FWE=5.6 SWL=2.4 CWL=2.9 CorWL=0.6 KWL=3.4
+  [W6|T45] score=0.2028 wr=0.18 surv=0.254 games=11 | W=2 D=0 L=9 | by-opp: Heuristic=0/2  MCTS3=1/5  Vanilla=1/4
+  [W6|T50] C=2.60 D=16 PB=15.4 RAVE=597 | LT=57 LL=14 | FWE=5.5 SWL=1.6 CWL=2.9 CorWL=0.6 KWL=2.9
+  [W7|T42] score=0.3326 wr=0.35 surv=0.251 games=20 | W=7 D=1 L=12 | by-opp: Heuristic=2/7  MCTS3=2/3  Vanilla=3/10
+  [W1|T44] score=0.4886 wr=0.55 surv=0.283 games=20 | W=11 D=0 L=9 | by-opp: Heuristic=4/9  MCTS3=3/7  Vanilla=4/4
+  [W1|T51] C=1.90 D=24 PB=12.1 RAVE=617 | LT=58 LL=14 | FWE=3.6 SWL=1.6 CWL=2.9 CorWL=0.5 KWL=3.4
+  [W4|T46] score=0.4090 wr=0.45 surv=0.264 games=20 | W=9 D=0 L=11 | by-opp: Heuristic=1/6  MCTS3=6/10  Vanilla=2/4
+  [W4|T52] C=1.93 D=22 PB=12.2 RAVE=595 | LT=53 LL=14 | FWE=6.7 SWL=1.4 CWL=2.3 CorWL=3.4 KWL=3.2
+  [W2|T47] score=0.3682 wr=0.40 surv=0.238 games=20 | W=8 D=0 L=12 | by-opp: Heuristic=2/9  MCTS3=3/6  Vanilla=3/5
+  [W2|T53] C=1.81 D=22 PB=11.8 RAVE=619 | LT=57 LL=14 | FWE=6.5 SWL=1.6 CWL=2.2 CorWL=0.6 KWL=3.5
+  [W5|T43] score=0.5041 wr=0.55 surv=0.356 games=20 | W=11 D=0 L=9 | by-opp: Heuristic=2/7  MCTS3=4/5  Vanilla=5/8
+  [W3|T48] score=0.3963 wr=0.40 surv=0.317 games=20 | W=8 D=0 L=12 | by-opp: Heuristic=2/7  MCTS3=4/7  Vanilla=2/6
+  [W3|T54] C=2.00 D=21 PB=11.7 RAVE=1006 | LT=28 LL=8 | FWE=3.7 SWL=1.6 CWL=2.3 CorWL=3.3 KWL=3.3
+  [W0|T49] score=0.4075 wr=0.45 surv=0.271 games=20 | W=9 D=0 L=11 | by-opp: Heuristic=2/6  MCTS3=4/9  Vanilla=3/5
+  [W0|T55] C=1.85 D=21 PB=17.1 RAVE=1020 | LT=29 LL=8 | FWE=3.6 SWL=1.5 CWL=2.4 CorWL=3.3 KWL=3.5
+  [W6|T50] score=0.4293 wr=0.45 surv=0.337 games=20 | W=9 D=0 L=11 | by-opp: Heuristic=3/4  MCTS3=1/5  Vanilla=5/11
+  [W1|T51] score=0.3827 wr=0.40 surv=0.289 games=20 | W=8 D=0 L=12 | by-opp: Heuristic=1/8  MCTS3=4/7  Vanilla=3/5
+  [W1|T56] C=2.00 D=21 PB=17.2 RAVE=1055 | LT=42 LL=10 | FWE=6.5 SWL=1.3 CWL=2.3 CorWL=3.1 KWL=3.7
+  [W2|T53] score=0.4534 wr=0.50 surv=0.281 games=20 | W=10 D=0 L=10 | by-opp: Heuristic=3/7  MCTS3=4/8  Vanilla=3/5
+  [W2|T57] C=2.06 D=21 PB=16.9 RAVE=980 | LT=29 LL=10 | FWE=4.8 SWL=1.3 CWL=2.4 CorWL=3.3 KWL=2.0
+  [W4|T52] score=0.2797 wr=0.25 surv=0.294 games=20 | W=5 D=0 L=15 | by-opp: Heuristic=1/6  MCTS3=2/9  Vanilla=2/5
+  [W0|T55] score=0.4799 wr=0.55 surv=0.270 games=20 | W=11 D=0 L=9 | by-opp: Heuristic=4/6  MCTS3=4/7  Vanilla=3/7
+  [W0|T58] C=2.01 D=19 PB=10.4 RAVE=975 | LT=42 LL=10 | FWE=2.0 SWL=1.3 CWL=2.5 CorWL=2.9 KWL=2.1
+  [W3|T54] score=0.2658 wr=0.25 surv=0.277 games=20 | W=5 D=0 L=15 | by-opp: Heuristic=1/7  MCTS3=2/6  Vanilla=2/7
+  [W3|T59] C=2.86 D=19 PB=10.5 RAVE=810 | LT=80 LL=10 | FWE=2.6 SWL=0.8 CWL=1.4 CorWL=4.1 KWL=1.3
+  [W1|T56] score=0.5939 wr=0.65 surv=0.380 games=20 | W=13 D=0 L=7 | by-opp: Heuristic=6/9  MCTS3=5/8  Vanilla=2/3
+  [W2|T57] score=0.4891 wr=0.55 surv=0.277 games=20 | W=11 D=0 L=9 | by-opp: Heuristic=0/2  MCTS3=5/9  Vanilla=6/9
+  [W3|T59] score=0.3044 wr=0.30 surv=0.280 games=20 | W=6 D=0 L=14 | by-opp: Heuristic=1/7  MCTS3=3/6  Vanilla=2/7
+  [W0|T58] score=0.3462 wr=0.35 surv=0.287 games=20 | W=7 D=0 L=13 | by-opp: Heuristic=2/5  MCTS3=4/12  Vanilla=1/3
+
+Tuning finished in 139.2 min  (8351 s total)
+
+── Generating analytics & plots ─────────────────────────────────
+  ✓ optimization_history.png
+  ✓ score_distribution.png
+  ✓ win_rate_over_trials.png
+  ✓ per_opponent_win_rate.png
+  ✓ param_importances.png
+  ✓ slice_*.png (11 params)
+  ✓ contour_*.png (6 pairs)
+  ✓ param_correlation.png
+─────────────────────────────────────────────────────────────────
+
+╔══════════════════════════════════════════════════════════════╗
+║              BEST TRIAL                                      ║
+║  Trial #56      Score: 0.593950                        ║
+╠══════════════════════════════════════════════════════════════╣
+║  C_PARAM                   = 1.997072949857646               ║
+║  DEPTH_LIMIT               = 21                              ║
+║  PB_WEIGHT                 = 17.214671823404686              ║
+║  RAVE_K                    = 1054.7344101331041              ║
+║  PHASE_LATE_TURN           = 42                              ║
+║  PHASE_LATE_LENGTH         = 10                              ║
+║  FOOD_WEIGHT_EARLY         = 6.470062206942892               ║
+║  SPACE_WEIGHT_LATE         = 1.3002160883138354              ║
+║  CENTER_WEIGHT_LATE        = 2.3372287215539562              ║
+║  CORNER_WEIGHT_LATE        = 3.1465101163543308              ║
+║  KILL_WEIGHT_LATE          = 3.661558132827282               ║
+╚══════════════════════════════════════════════════════════════╝
+
+Best params → rahul_results-smarter-tuning/best_params.txt

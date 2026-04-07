@@ -8,13 +8,14 @@ from server import run_server
 # Import your Phase 1 State Evaluator
 from heuristic_agent import evaluate_state as heavy_voronoi_eval
 
+import os
+C_PARAM                  = float(os.environ.get("MCTS3_C_PARAM",                  "1.452"))
+DEPTH_LIMIT              = int(  os.environ.get("MCTS3_DEPTH_LIMIT",              "6"))
+PB_WEIGHT                = float(os.environ.get("MCTS3_PB_WEIGHT",                "10.805"))
+EARLY_GAME_TARGET_LENGTH = int(  os.environ.get("MCTS3_EARLY_GAME_TARGET_LENGTH", "15"))
+
 MOVES = {"up": (0, 1), "down": (0, -1), "left": (-1, 0), "right": (1, 0)}
-#best parameters
-# 1.452,6,10.805,15
-C_PARAM =  1.452
-DEPTH_LIMIT = 6
-PB_WEIGHT = 10.805
-EARLY_GAME_TARGET_LENGTH = 15
+
 # ==========================================
 # Forward Model (Fast Physics Engine)
 # ==========================================

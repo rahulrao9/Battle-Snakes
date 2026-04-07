@@ -1,0 +1,8 @@
+# Best Trial #34  Score=0.761500
+
+# Paste these values into mcts_agent3.py, or export as env vars.
+
+MCTS3_C_PARAM=1.4804456526870862
+MCTS3_DEPTH_LIMIT=3
+MCTS3_PB_WEIGHT=3.5188273880577197
+MCTS3_EARLY_GAME_TARGET_LENGTH=14
