@@ -282,7 +282,7 @@ class MCTSAgent:
 # Battlesnake Endpoints
 # ==========================================
 def info() -> Dict:
-    return {"apiversion": "1", "author": "MGAIA_Vanilla_MCTS", "color": "#808080", "head": "default", "tail": "default"}
+    return {"apiversion": "1", "author": "Vanilla_MCTS", "color": "#808080", "head": "default", "tail": "default"}
 
 def start(game_state: Dict): pass
 def end(game_state: Dict): pass

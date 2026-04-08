@@ -9,7 +9,7 @@ from collections import deque
 def info() -> typing.Dict:
     return {
         "apiversion": "1",
-        "author": "MGAIA_multi_bfs_heuristics",
+        "author": "Heuristic_Agent",
         "color": "#FFD700",
         "head": "default",
         "tail": "default",
