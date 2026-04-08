@@ -1,4 +1,4 @@
-Trial_Number,C_PARAM,DEPTH_LIMIT,PB_WEIGHT,TARGET_LENGTH,Target_Wins,Heuristic_Wins,Vanilla_Wins,Advance1_Wins,Draws,Avg_Survival_Score,Avg_Length_Score,Optuna_Composite_Score
+Trial_Number,C_PARAM,DEPTH_LIMIT,PB_WEIGHT,TARGET_LENGTH,MCTS_FINAL,Heuristic_Wins,Vanilla_Wins,MCTS_VARIANT,Draws,Avg_Survival_Score,Avg_Length_Score,Optuna_Composite_Score
 0,2.917,11,5.345,20,5,8,5,2,0,0.316,0.317,0.366
 1,2.826,11,14.721,11,3,5,8,3,1,0.32,0.325,0.351
 2,2.99,8,14.463,12,8,6,2,4,0,0.364,0.446,0.461
