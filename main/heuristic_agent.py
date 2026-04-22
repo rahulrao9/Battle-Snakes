@@ -131,7 +131,7 @@ def evaluate_state(state) -> typing.Dict[str, float]:
         # Calculate final raw score
         raw_score = (territory_count * 3)
         if closest_food_dist != float('inf'):
-            raw_score += ((200 if my_health < 40 else 20) / closest_food_dist)
+            raw_score += ((200 if my_health < 50 else 20) / closest_food_dist)
         if territory_count < my_length:
             raw_score -= (4000 - territory_count)
         if my_head in risky_head_zones:

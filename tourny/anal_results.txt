@@ -1,0 +1,123 @@
+======================================================================
+  BattleSnakes — Full Statistical Analysis
+======================================================================
+
+[1/7] Loading and cleaning data ...
+Raw rows loaded       : 15648
+After deduplication   : 4282 rows  (1090 games, 3.9 snakes/game avg)
+WARNING: Dropping 2402 rows with 'unknown' experiment mapping.
+Experiments found     : ['1_Heuristic_vs_VanillaMCTS', '2_Heuristic_vs_MCTS', '3_Heuristic_vs_MCTSVar', '4_VanillaMCTS_vs_MCTS', '5_VanillaMCTS_vs_MCTSVar', '6_MCTS_vs_MCTSVar', '7_AllFour']
+Agents found          : ['Heuristic', 'MCTS_Vanilla', 'MCTS_v1', 'MCTS_v2']
+  Total unique games : 470
+
+[2/7] Computing TrueSkill ...
+TrueSkill processed   : 470 games
+
+=================================================================
+  TRUESKILL RANKINGS
+=================================================================
+  Rank  Agent                mu   sigma  mu-3sigma
+  ------------------------------------------------
+  1     MCTS_v2           26.05    0.68      24.02
+  2     Heuristic         24.77    0.68      22.74
+  3     MCTS_Vanilla      23.39    0.68      21.36
+  4     MCTS_v1           21.79    0.68      19.75
+=================================================================
+
+[3/7] Computing ELO ...
+
+==========================================
+  ELO LADDER
+==========================================
+  Rank  Agent                ELO
+  --------------------------------
+  1     Heuristic         1090.5
+  2     MCTS_v2           1065.4
+  3     MCTS_Vanilla       943.8
+  4     MCTS_v1            900.3
+==========================================
+
+[4/7] Computing win rates + 95% bootstrap CI ...
+
+==================================================================================
+  WIN RATES PER EXPERIMENT  (95% bootstrap CI)
+==================================================================================
+  Experiment                          Agent            Wins  Total    Win%         CI 95%
+  ----------------------------------------------------------------------------
+  1_Heuristic_vs_VanillaMCTS          Heuristic          63     97   64.9% [ 55.6%, 74.2%]
+  1_Heuristic_vs_VanillaMCTS          MCTS_Vanilla       34     97   35.1% [ 26.8%, 44.3%]
+  2_Heuristic_vs_MCTS                 MCTS_v2            42     70   60.0% [ 48.6%, 71.4%]
+  2_Heuristic_vs_MCTS                 Heuristic          27     70   38.6% [ 27.1%, 50.0%]
+  3_Heuristic_vs_MCTSVar              Heuristic          36     55   65.5% [ 52.7%, 78.2%]
+  3_Heuristic_vs_MCTSVar              MCTS_v1            19     55   34.5% [ 21.8%, 47.3%]
+  4_VanillaMCTS_vs_MCTS               MCTS_v2            61     93   65.6% [ 55.9%, 75.3%]
+  4_VanillaMCTS_vs_MCTS               MCTS_Vanilla       29     93   31.2% [ 21.5%, 39.8%]
+  5_VanillaMCTS_vs_MCTSVar            MCTS_Vanilla       34     54   63.0% [ 50.0%, 75.9%]
+  5_VanillaMCTS_vs_MCTSVar            MCTS_v1            19     54   35.2% [ 22.2%, 48.1%]
+  6_MCTS_vs_MCTSVar                   MCTS_v2            30     38   78.9% [ 65.8%, 92.1%]
+  6_MCTS_vs_MCTSVar                   MCTS_v1             7     38   18.4% [  7.9%, 31.6%]
+  7_AllFour                           Heuristic          27     81   33.3% [ 23.5%, 43.2%]
+  7_AllFour                           MCTS_v2            25     81   30.9% [ 21.0%, 40.7%]
+  7_AllFour                           MCTS_Vanilla       20     81   24.7% [ 16.0%, 34.6%]
+  7_AllFour                           MCTS_v1             9     81   11.1% [  4.9%, 18.5%]
+==================================================================================
+
+[5/7] Assignment scores ...
+
+=================================================================
+  ASSIGNMENT SCORE  (0.8 × survival + 0.2 × length)
+=================================================================
+  Rank  Agent               Mean      Std   Median      N
+  -------------------------------------------------------
+  1     MCTS_v2           0.5072   0.1843   0.5140    457
+  2     Heuristic         0.4242   0.1669   0.4152    527
+  3     MCTS_Vanilla      0.4008   0.1797   0.4120    573
+  4     MCTS_v1           0.3329   0.1482   0.3173    395
+=================================================================
+
+[6/7] Mann-Whitney pairwise significance tests ...
+
+============================================================
+  MANN-WHITNEY U  (pairwise, two-sided)
+============================================================
+  Agent A         Agent B                  U    p-value   Sig
+  --------------------------------------------------------
+  MCTS_v1         MCTS_v2              41970     0.0000    **
+  MCTS_Vanilla    MCTS_v2              90124     0.0000    **
+  Heuristic       MCTS_v1             136520     0.0000    **
+  Heuristic       MCTS_v2              86700     0.0000    **
+  MCTS_Vanilla    MCTS_v1             138624     0.0000    **
+  Heuristic       MCTS_Vanilla        159494     0.1060    ns
+============================================================
+
+[7/7] Saving figures ...
+  Saved logs-1/figures/fig1_trueskill_ratings.png
+  Saved logs-1/figures/fig2_elo_ladder.png
+  Saved logs-1/figures/fig3_turns_survived.png
+  Saved logs-1/figures/fig4_win_rates.png
+  Saved logs-1/figures/fig5_assignment_score.png
+  Saved logs-1/figures/fig6_placement_distribution.png
+  Saved logs-1/figures/fig7_trueskill_convergence.png
+  Saved logs-1/figures/fig8_pvalue_heatmap.png
+
+% ── LaTeX table — paste into your report ───────────────────────────
+\begin{table}[htbp]
+\centering
+\caption{Agent performance summary across all 7 experiments. TrueSkill conservative score = $\mu - 3\sigma$. Composite Score = $0.8 \cdot \text{survival} + 0.2 \cdot \text{length}$ (normalised per game).}
+\label{tab:results}
+\begin{tabular}{clrrrrrr}
+\toprule
+Rank & Agent & $\mu$ & $\sigma$ & $\mu-3\sigma$ & ELO & Score (mean) & Score (std) \\
+\midrule
+1 & MCTS_v2 & 26.05 & 0.68 & 24.02 & 1065 & 0.5072 & 0.1843 \\
+2 & Heuristic & 24.77 & 0.68 & 22.74 & 1091 & 0.4242 & 0.1669 \\
+3 & MCTS_Vanilla & 23.39 & 0.68 & 21.36 & 944 & 0.4008 & 0.1797 \\
+4 & MCTS_v1 & 21.79 & 0.68 & 19.75 & 900 & 0.3329 & 0.1482 \\
+\bottomrule
+\end{tabular}
+\end{table}
+% ───────────────────────────────────────────────────────────────────
+
+
+All figures saved to logs-1/figures/
+Analysis complete — 470 games processed.

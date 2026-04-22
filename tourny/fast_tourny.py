@@ -56,9 +56,9 @@ POLL_INTERVAL     = 0.15
 GAME_HARD_TIMEOUT = 450        # seconds before a game is declared stuck
 AGENT_BOOT_WAIT   = 3.0        # seconds to wait for Flask agents to start
 GAMES_PER_EXP     = 100        # 700 games total across 7 experiments
-N_WORKERS         = 8
+N_WORKERS         = 4
 
-LOGS_DIR          = Path("logs")
+LOGS_DIR          = Path("logs-1")
 EXP_MAP_CSV       = LOGS_DIR / "experiment_map.csv"
 
 # ---------------------------------------------------------------------------
@@ -69,10 +69,10 @@ THIS_DIR = Path(__file__).parent
 ROOT_DIR = THIS_DIR.parent
 # slot → (readable_name, filename)
 AGENT_SLOTS = {
-    0: ("Snake1", str(ROOT_DIR / "heuristic_agent.py")),
-    1: ("Snake2", str(ROOT_DIR / "mcts_agent_final.py")),
-    2: ("Snake3", str(ROOT_DIR / "mcts_agent_variation.py")),
-    3: ("Snake4", str(ROOT_DIR / "vanilla_mcts.py")),
+    0: ("Snake1", str(ROOT_DIR / "main/heuristic_agent.py")),
+    1: ("Snake2", str(ROOT_DIR / "main/mcts_agent-final.py")),
+    2: ("Snake3", str(ROOT_DIR / "main/mcts_agent-variation.py")),
+    3: ("Snake4", str(ROOT_DIR / "main/vanilla_mcts.py")),
 }
 
 def worker_port(worker_id: int, slot: int) -> int:
@@ -411,7 +411,7 @@ def main():
     print(f"  Experiments: {len(EXPERIMENTS)}  ×  {GAMES_PER_EXP} games = {total_planned} planned")
     print(f"  Port range: 8000 – {8000 + N_WORKERS * 10 - 1}")
     print(f"  Exp map   : {EXP_MAP_CSV}")
-    print(f"  Summaries : logs/game_summaries.csv  (written by agents)")
+    print(f"  Summaries : {LOGS_DIR}/game_summaries.csv  (written by agents)")
     print("=" * 70)
     print()
 

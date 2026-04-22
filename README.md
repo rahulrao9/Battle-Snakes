@@ -1,53 +1,140 @@
-# BattlesnakeOfficial/rules
 
-[![codecov](https://codecov.io/gh/BattlesnakeOfficial/rules/branch/master/graph/badge.svg)](https://codecov.io/gh/BattlesnakeOfficial/rules)
+<div align="center">
+<img src="https://media.battlesnake.com/social/StarterSnakeGitHubRepos_Python.png" alt="Battlesnake Logo" width="100%"/>
 
-[Battlesnake](https://play.battlesnake.com) rules and game logic, implemented as a Go module. This code is used in production at [play.battlesnake.com](https://play.battlesnake.com). Issues and contributions welcome!
+# 🐍 Advanced Battlesnake AI
 
+A collection of high-performance intelligent agents built for the Battlesnake arena, featuring Monte Carlo Tree Search (MCTS), Reinforcement Learning (RL), and Advanced Heuristics.
 
-## CLI for Running Battlesnake Games Locally
+</div>
 
-This repo provides a simple CLI tool to run games locally against your dev environment.
+---
 
-### Installation
+## 🚀 Quick Start: Running on Localhost
 
-Download precompiled binaries here: <br>
-[https://github.com/BattlesnakeOfficial/rules/releases](https://github.com/BattlesnakeOfficial/rules/releases)
+Want to watch the AI battle it out locally? We've made it incredibly simple using the included runner scripts. These scripts will automatically start your Python server and use the Battlesnake CLI to initiate a local game.
 
-Install as a Go package. Requires Go 1.18 or higher. [[Download](https://golang.org/dl/)]
+### 1. Install Dependencies
+
+First, ensure you have Python installed, then install the required packages:
+
+```bash
+pip install -r requirements.txt
+````
+
+---
+
+### 2. Start the Game!
+
+Depending on your operating system, use one of the following scripts:
+
+#### 🪟 Windows
+
+```bash
+.\run.bat
 ```
+
+#### 🍎 Mac / 🐧 Linux
+
+```bash
+chmod +x run.sh
+./run.sh
+```
+
+> These scripts use the pre-compiled Battlesnake CLI binary included in the root folder to start a game against your local `server.py`.
+
+---
+
+## 🧠 Our AI Agents
+
+This repository includes multiple AI implementations inside the `main/` directory:
+
+* **`mcts_agent-final.py`**
+  Highly tuned Monte Carlo Tree Search agent simulating thousands of future states.
+
+* **`mcts_agent-variation.py`**
+  Experimental MCTS version for A/B testing.
+
+* **`rl_agent.py`**
+  Reinforcement Learning-based agent trained for survival and trapping.
+
+* **`heuristic_agent.py`**
+  Fast rule-based agent using weighted evaluations.
+
+* **`vanilla_mcts.py`**
+  Baseline MCTS implementation for benchmarking.
+
+Additional tools:
+
+* **`tournammentrunner.py`** → Automated tournaments
+* **`mcts_tuner.py`** → Hyperparameter tuning using Optuna
+
+---
+
+## 📂 Project Structure
+
+```
+📦 Battlesnake-AI
+ ┣ 📂 main
+ ┃ ┣ 📜 graphs.py
+ ┃ ┣ 📜 heuristic_agent.py
+ ┃ ┣ 📜 logger.py
+ ┃ ┣ 📜 mcts_agent-final.py
+ ┃ ┣ 📜 mcts_agent-variation.py
+ ┃ ┣ 📜 mcts_tuner.py
+ ┃ ┣ 📜 rl_agent.py
+ ┃ ┣ 📜 run_game.py
+ ┃ ┣ 📜 server.py
+ ┃ ┣ 📜 tournammentrunner.py
+ ┃ ┗ 📜 vanilla_mcts.py
+ ┣ 📂 optuna-mcts-final
+ ┣ 📂 RL_Agent
+ ┣ 📂 tourny
+ ┣ 📜 Assignment_Description_MGAI_2.pdf
+ ┣ 📜 run.sh
+ ┣ 📜 run.bat
+ ┣ 📜 run.txt
+ ┣ 📜 battlesnake
+ ┣ 📜 requirements.txt
+ ┣ 📜 .gitignore
+ ┗ 📜 README.md
+```
+
+---
+
+## 🛠️ Battlesnake CLI Usage
+
+You can manually run games using the included CLI:
+
+```bash
+./battlesnake play -W 11 -H 11 --name "My_AI_Snake" --url http://localhost:8000 -g solo -v
+```
+
+---
+
+### 🔄 Updating CLI
+
+Download latest binaries or install via Go:
+
+```bash
 go install github.com/BattlesnakeOfficial/rules/cli/battlesnake@latest
 ```
 
-Compile from source. Also requires Go 1.18 or higher.
-```
-git clone git@github.com:BattlesnakeOfficial/rules.git
-cd rules
-go build -o battlesnake ./cli/battlesnake/main.go
-```
+---
 
-### Usage
-
-Example command to run a game locally:
-```
-battlesnake play -W 11 -H 11 --name <SNAKE_NAME> --url <SNAKE_URL> -g solo -v
-```
-
-For more details, see the [CLI README](cli/README.md).
-
-
-## FAQ
+## ❓ FAQ & Feedback
 
 ### Can I run games locally?
 
-Yes! [See the included CLI](cli/README.md).
+Yes — use `run.sh` or `run.bat` for automated local matches.
 
-### How is this different from the old Battlesnake engine?
+### Feedback or suggestions?
 
-The [old game engine](https://github.com/battlesnakeio/engine) was re-written in early 2020 to handle a higher volume of concurrent games. As part of that rebuild we moved the game logic into a separate Go module that gets compiled into the production engine.
+* Open an issue in this repository
+* Or use the official Battlesnake feedback channels
 
-This provides two benefits: it makes it much simpler/easier to build new game modes, and it allows the community to get more involved in game development (without the maintenance overhead of the entire game engine).
+---
 
-### Feedback
-
-* **Do you have an issue or suggestions for this repository?** Head over to our [Feedback Repository](https://play.battlesnake.com/feedback) today and let us know!
+<div align="center">
+<i>Happy coding and may your snake never starve! 🐍🍎</i>
+</div>
